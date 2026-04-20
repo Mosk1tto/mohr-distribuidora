@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { siteConfig } from "@/lib/constants/site";
+import { CartProvider } from "@/contexts/cart-context";
 
 export const metadata: Metadata = {
   title: siteConfig.name,
@@ -14,7 +15,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body>{children}</body>
+      <body>
+        <CartProvider>{children}</CartProvider>
+      </body>
     </html>
   );
 }

@@ -1,4 +1,8 @@
-import type { Category } from "./category";
+export type Category = {
+  id: string;
+  name: string;
+  slug: string;
+};
 
 export type Product = {
   id: string;
@@ -9,7 +13,5 @@ export type Product = {
   stockQuantity: number;
   isActive: boolean;
   categoryId: string;
-  category?: Category;
-  createdAt?: string;
-  updatedAt?: string;
+  category: Category | null;
 };
