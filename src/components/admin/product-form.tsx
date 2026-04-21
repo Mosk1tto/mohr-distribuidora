@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Product } from "@/types/product";
 
@@ -33,28 +33,44 @@ export function ProductForm({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function uploadImage() {
-    if (!imageFile) return imageUrl;
+  useEffect(() => {
+    setName(selectedProduct?.name ?? "");
+    setSlug(selectedProduct?.slug ?? "");
+    setPrice(String(selectedProduct?.price ?? ""));
+    setStockQuantity(String(selectedProduct?.stockQuantity ?? ""));
+    setCategoryId(selectedProduct?.categoryId ?? "");
+    setImageUrl(selectedProduct?.imageUrl ?? "");
+    setImageFile(null);
+    setError(null);
+  }, [selectedProduct]);
+
+  async function uploadImage(): Promise<string | null> {
+    if (!imageFile) return imageUrl || null;
 
     setUploadingImage(true);
 
-    const formData = new FormData();
-    formData.append("file", imageFile);
+    try {
+      const formData = new FormData();
+      formData.append("file", imageFile);
 
-    const response = await fetch("/api/upload", {
-      method: "POST",
-      body: formData,
-    });
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
 
-    const data = await response.json();
-    setUploadingImage(false);
+      const data = await response.json();
 
-    if (!response.ok) {
-      throw new Error(data.message ?? "Erro ao enviar imagem.");
+      if (!response.ok) {
+        throw new Error(data.message ?? "Erro ao enviar imagem.");
+      }
+
+      const uploadedImageUrl = data.imageUrl as string;
+
+      setImageUrl(uploadedImageUrl);
+      return uploadedImageUrl;
+    } finally {
+      setUploadingImage(false);
     }
-
-    setImageUrl(data.imageUrl);
-    return data.imageUrl as string;
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -65,20 +81,22 @@ export function ProductForm({
     try {
       const finalImageUrl = await uploadImage();
 
+      const payload = {
+        id: selectedProduct?.id,
+        name,
+        slug,
+        price: Number(price),
+        stockQuantity: Number(stockQuantity),
+        categoryId,
+        imageUrl: finalImageUrl,
+      };
+
       const response = await fetch("/api/admin/products", {
         method: selectedProduct ? "PUT" : "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          id: selectedProduct?.id,
-          name,
-          slug,
-          price: Number(price),
-          stockQuantity: Number(stockQuantity),
-          categoryId,
-          imageUrl: finalImageUrl || null,
-        }),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
@@ -107,14 +125,14 @@ export function ProductForm({
           <button
             type="button"
             onClick={onCancelEdit}
-            className="text-sm font-medium text-slate-600"
+            className="text-sm font-medium text-slate-600 transition hover:text-slate-900"
           >
             Cancelar edição
           </button>
         ) : null}
       </div>
 
-      <label className="space-y-2 block">
+      <label className="block space-y-2">
         <span className="text-sm font-medium text-slate-700">Nome</span>
         <input
           value={name}
@@ -123,7 +141,7 @@ export function ProductForm({
         />
       </label>
 
-      <label className="space-y-2 block">
+      <label className="block space-y-2">
         <span className="text-sm font-medium text-slate-700">Slug</span>
         <input
           value={slug}
@@ -133,7 +151,7 @@ export function ProductForm({
       </label>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <label className="space-y-2 block">
+        <label className="block space-y-2">
           <span className="text-sm font-medium text-slate-700">Preço</span>
           <input
             type="number"
@@ -144,7 +162,7 @@ export function ProductForm({
           />
         </label>
 
-        <label className="space-y-2 block">
+        <label className="block space-y-2">
           <span className="text-sm font-medium text-slate-700">Estoque</span>
           <input
             type="number"
@@ -155,7 +173,7 @@ export function ProductForm({
         </label>
       </div>
 
-      <label className="space-y-2 block">
+      <label className="block space-y-2">
         <span className="text-sm font-medium text-slate-700">Categoria</span>
         <select
           value={categoryId}
@@ -171,7 +189,7 @@ export function ProductForm({
         </select>
       </label>
 
-      <label className="space-y-2 block">
+      <label className="block space-y-2">
         <span className="text-sm font-medium text-slate-700">Imagem</span>
         <input
           type="file"
