@@ -13,6 +13,17 @@ type ProductFormProps = {
   onCancelEdit: () => void;
 };
 
+function generateSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // Remove acentos
+    .replace(/[^\w\s-]/g, "") // Remove caracteres especiais
+    .replace(/\s+/g, "-") // Substitui espaços por hífens
+    .replace(/-+/g, "-"); // Remove hífens duplicados
+}
+
 export function ProductForm({
   categories,
   selectedProduct,
@@ -32,6 +43,7 @@ export function ProductForm({
   const [uploadingImage, setUploadingImage] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   useEffect(() => {
     setName(selectedProduct?.name ?? "");
@@ -42,32 +54,80 @@ export function ProductForm({
     setImageUrl(selectedProduct?.imageUrl ?? "");
     setImageFile(null);
     setError(null);
+    setSuccessMessage(null);
   }, [selectedProduct]);
 
-  async function uploadImage(): Promise<string | null> {
-    if (!imageFile) return imageUrl || null;
+  function handleNameChange(value: string) {
+    setName(value);
+    // Gerar slug automaticamente
+    setSlug(generateSlug(value));
+  }
+
+  async function handleUploadImageOnly() {
+    if (!imageFile) {
+      setError("Selecione uma imagem primeiro.");
+      return;
+    }
+
+    if (!selectedProduct?.id) {
+      setError("Nenhum produto selecionado.");
+      return;
+    }
 
     setUploadingImage(true);
+    setError(null);
+    setSuccessMessage(null);
 
     try {
+      // 1. Upload da imagem
       const formData = new FormData();
       formData.append("file", imageFile);
 
-      const response = await fetch("/api/upload", {
+      const uploadResponse = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       });
 
-      const data = await response.json();
+      const uploadData = await uploadResponse.json();
 
-      if (!response.ok) {
-        throw new Error(data.message ?? "Erro ao enviar imagem.");
+      if (!uploadResponse.ok) {
+        throw new Error(uploadData.message ?? "Erro ao enviar imagem.");
       }
 
-      const uploadedImageUrl = data.imageUrl as string;
-
+      const uploadedImageUrl = uploadData.imageUrl as string;
       setImageUrl(uploadedImageUrl);
-      return uploadedImageUrl;
+      setImageFile(null);
+
+      // 2. Atualizar APENAS a imagem no banco
+      const updateResponse = await fetch("/api/admin/products", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: selectedProduct.id,
+          name: selectedProduct.name,
+          slug: selectedProduct.slug,
+          price: selectedProduct.price,
+          stockQuantity: selectedProduct.stockQuantity,
+          categoryId: selectedProduct.categoryId,
+          imageUrl: uploadedImageUrl,
+        }),
+      });
+
+      const updateData = await updateResponse.json();
+
+      if (!updateResponse.ok) {
+        throw new Error(updateData.message ?? "Erro ao salvar imagem.");
+      }
+
+      setSuccessMessage("Imagem atualizada com sucesso!");
+      router.refresh();
+
+      // Limpar mensagem após 3 segundos
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro inesperado.");
     } finally {
       setUploadingImage(false);
     }
@@ -76,15 +136,39 @@ export function ProductForm({
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+    setSuccessMessage(null);
     setSaving(true);
 
     try {
-      const finalImageUrl = await uploadImage();
+      if (!name.trim() || !slug.trim() || !categoryId.trim()) {
+        throw new Error("Preencha todos os campos obrigatórios.");
+      }
+
+      let finalImageUrl = imageUrl;
+
+      // Se tem arquivo novo, faz upload antes
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append("file", imageFile);
+
+        const response = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message ?? "Erro ao enviar imagem.");
+        }
+
+        finalImageUrl = data.imageUrl as string;
+      }
 
       const payload = {
         id: selectedProduct?.id,
-        name,
-        slug,
+        name: name.trim(),
+        slug: slug.trim(),
         price: Number(price),
         stockQuantity: Number(stockQuantity),
         categoryId,
@@ -105,8 +189,16 @@ export function ProductForm({
         throw new Error(data.message ?? "Erro ao salvar produto.");
       }
 
-      router.push("/admin/products");
-      router.refresh();
+      setSuccessMessage(
+        selectedProduct
+          ? "Produto atualizado com sucesso!"
+          : "Produto criado com sucesso!"
+      );
+
+      setTimeout(() => {
+        router.push("/admin/products");
+        router.refresh();
+      }, 1500);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro inesperado.");
     } finally {
@@ -136,19 +228,19 @@ export function ProductForm({
         <span className="text-sm font-medium text-slate-700">Nome</span>
         <input
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => handleNameChange(e.target.value)}
           className="w-full rounded-xl border border-slate-200 px-4 py-2"
+          placeholder="Ex: Detergente Neutro"
         />
       </label>
 
-      <label className="block space-y-2">
-        <span className="text-sm font-medium text-slate-700">Slug</span>
-        <input
-          value={slug}
-          onChange={(e) => setSlug(e.target.value)}
-          className="w-full rounded-xl border border-slate-200 px-4 py-2"
-        />
-      </label>
+      {slug && (
+        <div className="rounded-xl bg-slate-50 p-3">
+          <p className="text-xs text-slate-600">
+            <strong>Slug:</strong> <code className="font-mono">{slug}</code>
+          </p>
+        </div>
+      )}
 
       <div className="grid gap-4 md:grid-cols-2">
         <label className="block space-y-2">
@@ -189,15 +281,29 @@ export function ProductForm({
         </select>
       </label>
 
-      <label className="block space-y-2">
-        <span className="text-sm font-medium text-slate-700">Imagem</span>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
-          className="w-full rounded-xl border border-slate-200 px-4 py-2"
-        />
-      </label>
+      <div className="space-y-3">
+        <label className="block space-y-2">
+          <span className="text-sm font-medium text-slate-700">Imagem</span>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
+            className="w-full rounded-xl border border-slate-200 px-4 py-2"
+          />
+        </label>
+
+        {/* Botão para trocar imagem SEM salvar produto */}
+        {selectedProduct && imageFile && (
+          <button
+            type="button"
+            onClick={handleUploadImageOnly}
+            disabled={uploadingImage}
+            className="w-full rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700 transition hover:bg-emerald-100 disabled:opacity-50"
+          >
+            {uploadingImage ? "Atualizando imagem..." : "Atualizar imagem"}
+          </button>
+        )}
+      </div>
 
       {imageUrl ? (
         <div className="rounded-2xl border border-slate-200 p-4">
@@ -210,18 +316,30 @@ export function ProductForm({
         </div>
       ) : null}
 
-      {error ? <p className="text-sm text-rose-600">{error}</p> : null}
+      {error ? (
+        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-3">
+          <p className="text-sm text-rose-600">{error}</p>
+        </div>
+      ) : null}
+
+      {successMessage ? (
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-3">
+          <p className="text-sm text-emerald-600">{successMessage}</p>
+        </div>
+      ) : null}
 
       <button
         type="submit"
         disabled={saving || uploadingImage}
-        className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+        className="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:opacity-50"
       >
         {uploadingImage
           ? "Enviando imagem..."
           : saving
           ? "Salvando..."
-          : "Salvar produto"}
+          : selectedProduct
+          ? "Atualizar produto"
+          : "Criar produto"}
       </button>
     </form>
   );

@@ -1,9 +1,18 @@
 import { redirect } from "next/navigation";
-import { AdminProductsView } from "@/components/admin/admin-products-view";
+import { AdminDashboard } from "@/components/admin/admin-dashboard";
 import { createClient } from "@/lib/supabase/server";
 import type { Product } from "@/types/product";
+import type { Category } from "@/types/category";
 
-export default async function AdminProductsPage() {
+type AdminProductsPageProps = {
+  searchParams: Promise<{
+    q?: string;
+  }>;
+};
+
+export default async function AdminProductsPage({
+  searchParams,
+}: AdminProductsPageProps) {
   const supabase = await createClient();
 
   const {
@@ -15,29 +24,41 @@ export default async function AdminProductsPage() {
     redirect("/admin/login");
   }
 
+  const params = await searchParams;
+  const query = params.q?.trim() ?? "";
+
+  let productsQuery = supabase
+    .from("products")
+    .select(
+      `
+        id,
+        name,
+        slug,
+        image_url,
+        price,
+        stock_quantity,
+        is_active,
+        category_id,
+        category:categories (
+          id,
+          name,
+          slug
+        )
+      `
+    )
+    .order("created_at", { ascending: false });
+
+  if (query) {
+    productsQuery = productsQuery.ilike("name", `%${query}%`);
+  }
+
   const [{ data: productsData, error: productsError }, { data: categoriesData, error: categoriesError }] =
     await Promise.all([
+      productsQuery,
       supabase
-        .from("products")
-        .select(
-          `
-            id,
-            name,
-            slug,
-            image_url,
-            price,
-            stock_quantity,
-            is_active,
-            category_id,
-            category:categories (
-              id,
-              name,
-              slug
-            )
-          `
-        )
-        .order("created_at", { ascending: false }),
-      supabase.from("categories").select("id, name").order("name", { ascending: true }),
+        .from("categories")
+        .select("id, name, slug, created_at")
+        .order("name", { ascending: true }),
     ]);
 
   if (productsError || categoriesError) {
@@ -59,11 +80,19 @@ export default async function AdminProductsPage() {
         : product.category,
     })) ?? [];
 
-  const categories =
+  const categories: Category[] =
     categoriesData?.map((category) => ({
       id: category.id,
       name: category.name,
+      slug: category.slug,
+      createdAt: category.created_at,
     })) ?? [];
 
-  return <AdminProductsView products={products} categories={categories} />;
+  return (
+    <AdminDashboard
+      products={products}
+      categories={categories}
+      initialQuery={query}
+    />
+  );
 }

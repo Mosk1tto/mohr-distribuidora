@@ -2,11 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useCart } from "@/hooks/use-cart";
+import { useToast } from "@/hooks/use-toast";
 import type { CartProduct } from "@/types/cart";
 import { formatCurrency } from "@/lib/utils/currency";
 
 export default function CartPage() {
   const { items, addItem, decreaseItem, removeItem, clearCart } = useCart();
+  const { addToast } = useToast();
   const [products, setProducts] = useState<CartProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [customerName, setCustomerName] = useState("");
@@ -81,6 +83,22 @@ export default function CartPage() {
     }
   }
 
+  function handleClearCart() {
+    if (
+      window.confirm(
+        "Tem certeza que deseja limpar o carrinho? Esta ação não pode ser desfeita."
+      )
+    ) {
+      clearCart();
+      addToast("Carrinho limpo", "info", 2000);
+    }
+  }
+
+  function handleRemoveItem(productId: string, productName: string) {
+    removeItem(productId);
+    addToast(`${productName} removido do carrinho`, "info", 1500);
+  }
+
   return (
     <main className="px-6 py-10">
       <div className="mx-auto max-w-4xl space-y-6">
@@ -130,7 +148,7 @@ export default function CartPage() {
 
                     <button
                       type="button"
-                      onClick={() => removeItem(item.productId)}
+                      onClick={() => handleRemoveItem(item.productId, item.name)}
                       className="text-sm font-medium text-rose-600 transition hover:text-rose-700"
                     >
                       Remover
@@ -141,7 +159,7 @@ export default function CartPage() {
                     <button
                       type="button"
                       onClick={() => decreaseItem(item.productId)}
-                      className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-lg"
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-lg transition hover:bg-slate-50"
                     >
                       -
                     </button>
@@ -154,7 +172,7 @@ export default function CartPage() {
                       type="button"
                       onClick={() => addItem(item.productId)}
                       disabled={item.quantity >= item.stockQuantity}
-                      className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-lg disabled:cursor-not-allowed disabled:opacity-50"
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-lg transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       +
                     </button>
@@ -230,7 +248,7 @@ export default function CartPage() {
 
                 <button
                   type="button"
-                  onClick={clearCart}
+                  onClick={handleClearCart}
                   className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
                 >
                   Limpar carrinho

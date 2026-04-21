@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Container } from "@/components/ui/container";
+import { CartBadge } from "@/components/ui/cart-badge";
 
 export default function StoreLayout({
   children,
@@ -17,7 +18,7 @@ export default function StoreLayout({
           <nav className="flex items-center gap-4 text-sm font-medium text-slate-600">
             <Link href="/">Início</Link>
             <Link href="/products">Produtos</Link>
-            <Link href="/cart">Carrinho</Link>
+            <CartBadge />
             <Link href="/admin/login">Admin</Link>
           </nav>
         </Container>
