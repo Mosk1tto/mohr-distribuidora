@@ -1,102 +1,90 @@
 "use client";
 
+import { useState } from "react";
 import { ProductForm } from "@/components/admin/product-form";
 import type { Product } from "@/types/product";
 
 type AdminProductsViewProps = {
   products: Product[];
-  categories: { id: string; name: string }[];
+  categories: {
+    id: string;
+    name: string;
+  }[];
 };
 
-export function AdminProductsView({ products, categories }: AdminProductsViewProps) {
+export function AdminProductsView({
+  products,
+  categories,
+}: AdminProductsViewProps) {
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  function handleEdit(product: Product) {
+    setSelectedProduct(product);
+  }
+
+  function handleCancelEdit() {
+    setSelectedProduct(null);
+  }
+
   return (
-    <main className="p-6">
-      <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-        <section className="space-y-4">
-          <div>
-            <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-500">
-              Administração
-            </p>
-            <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
-              Produtos
-            </h1>
-            <p className="mt-2 text-slate-600">
-              Cadastre, edite e remova produtos do catálogo.
-            </p>
-          </div>
-
-          <ProductForm categories={categories} />
-        </section>
-
-        <aside className="space-y-4">
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-slate-900">
-              Resumo rápido
-            </h2>
-
-            <div className="mt-4 grid gap-3 text-sm text-slate-600">
-              <div className="flex items-center justify-between">
-                <span>Total de produtos</span>
-                <strong>{products.length}</strong>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span>Ativos</span>
-                <strong>{products.filter((p) => p.isActive).length}</strong>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span>Estoque total</span>
-                <strong>
-                  {products.reduce((sum, p) => sum + p.stockQuantity, 0)}
-                </strong>
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-slate-900">
-              Produtos cadastrados
-            </h2>
-
-            <div className="mt-4 space-y-3">
-              {products.map((product) => (
-                <article
-                  key={product.id}
-                  className="rounded-xl border border-slate-200 p-4"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h3 className="font-medium text-slate-900">
-                        {product.name}
-                      </h3>
-                      <p className="text-sm text-slate-500">{product.slug}</p>
-                      <p className="text-sm text-slate-500">
-                        {product.category?.name ?? "Sem categoria"}
-                      </p>
-                    </div>
-
-                    <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                        product.isActive
-                          ? "bg-emerald-50 text-emerald-700"
-                          : "bg-slate-100 text-slate-600"
-                      }`}
-                    >
-                      {product.isActive ? "Ativo" : "Inativo"}
-                    </span>
-                  </div>
-
-                  <div className="mt-3 flex items-center justify-between text-sm text-slate-600">
-                    <span>R$ {product.price.toFixed(2).replace(".", ",")}</span>
-                    <span>Estoque: {product.stockQuantity}</span>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </aside>
+    <div className="grid gap-8 lg:grid-cols-[420px_1fr]">
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <ProductForm
+          categories={categories}
+          selectedProduct={selectedProduct}
+          onCancelEdit={handleCancelEdit}
+        />
       </div>
-    </main>
+
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold text-slate-900">
+            Produtos cadastrados
+          </h2>
+          <p className="mt-1 text-sm text-slate-500">
+            Clique em editar para alterar um produto existente.
+          </p>
+        </div>
+
+        {products.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-slate-300 p-6">
+            <p className="text-slate-600">Nenhum produto cadastrado ainda.</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {products.map((product) => (
+              <article
+                key={product.id}
+                className="flex items-start justify-between gap-4 rounded-2xl border border-slate-200 p-4"
+              >
+                <div className="min-w-0">
+                  <h3 className="text-base font-semibold text-slate-900">
+                    {product.name}
+                  </h3>
+
+                  <p className="text-sm text-slate-500">{product.slug}</p>
+
+                  <div className="mt-2 space-y-1 text-sm text-slate-600">
+                    <p>Preço: R$ {Number(product.price).toFixed(2)}</p>
+                    <p>Estoque: {product.stockQuantity}</p>
+                    <p>
+                      Categoria: {product.category?.name ?? "Sem categoria"}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => handleEdit(product)}
+                  className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                >
+                  Editar
+                </button>
+              </article>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

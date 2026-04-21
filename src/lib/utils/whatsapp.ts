@@ -1,32 +1,35 @@
-import type { CartItem } from "@/types/cart";
-import { siteConfig } from "@/lib/constants/site";
+import { formatCurrency } from "@/lib/utils/currency";
+import type { CartProduct } from "@/types/cart";
 
-export function formatCurrencyBRL(value: number) {
-  return value.toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  });
-}
+type CustomerCheckoutData = {
+  customerName: string;
+  customerPhone: string;
+  notes?: string;
+};
 
-export function buildWhatsAppMessage(items: CartItem[], totalPrice: number) {
+export function buildWhatsAppMessage(
+  items: CartProduct[],
+  customer: CustomerCheckoutData
+) {
+  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
   const lines = [
-    "Olá! Gostaria de finalizar meu pedido.",
+    "Olá! Gostaria de fazer um pedido.",
     "",
-    "Itens:",
+    `Nome: ${customer.customerName}`,
+    `Telefone: ${customer.customerPhone}`,
+    customer.notes?.trim() ? `Observações: ${customer.notes.trim()}` : null,
+    "",
+    "Itens do pedido:",
     ...items.map(
-      (item) =>
-        `- ${item.name} x${item.quantity} — ${formatCurrencyBRL(
-          item.price * item.quantity
-        )}`
+      (item, index) =>
+        `${index + 1}. ${item.name} | Qtd: ${item.quantity} | Unitário: ${formatCurrency(
+          item.price
+        )} | Subtotal: ${formatCurrency(item.price * item.quantity)}`
     ),
     "",
-    `Total: ${formatCurrencyBRL(totalPrice)}`,
+    `Total: ${formatCurrency(total)}`,
   ];
 
-  return lines.join("\n");
-}
-
-export function buildWhatsAppUrl(message: string) {
-  const phone = siteConfig.whatsappNumber.replace(/\D/g, "");
-  return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+  return lines.filter(Boolean).join("\n");
 }

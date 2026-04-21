@@ -2,13 +2,25 @@ import { Container } from "@/components/ui/container";
 import { SectionTitle } from "@/components/ui/section-title";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/product/product-card";
+import { CatalogFilters } from "@/components/product/catalog-filters";
 import type { Product } from "@/types/product";
 import { createClient } from "@/lib/supabase/server";
 
-export default async function ProductsPage() {
+type ProductsPageProps = {
+  searchParams: Promise<{
+    q?: string;
+    category?: string;
+  }>;
+};
+
+export default async function ProductsPage({ searchParams }: ProductsPageProps) {
+  const params = await searchParams;
   const supabase = await createClient();
 
-  const { data, error } = await supabase
+  const query = params.q?.trim() ?? "";
+  const category = params.category?.trim() ?? "";
+
+  let productsQuery = supabase
     .from("products")
     .select(
       `
@@ -27,9 +39,24 @@ export default async function ProductsPage() {
         )
       `
     )
+    .eq("is_active", true)
     .order("created_at", { ascending: false });
 
-  if (error) {
+  if (query) {
+    productsQuery = productsQuery.ilike("name", `%${query}%`);
+  }
+
+  if (category) {
+    productsQuery = productsQuery.eq("category_id", category);
+  }
+
+  const [{ data, error }, { data: categoriesData, error: categoriesError }] =
+    await Promise.all([
+      productsQuery,
+      supabase.from("categories").select("id, name").order("name", { ascending: true }),
+    ]);
+
+  if (error || categoriesError) {
     throw new Error("Erro ao carregar produtos.");
   }
 
@@ -48,19 +75,31 @@ export default async function ProductsPage() {
         : product.category,
     })) ?? [];
 
+  const categories =
+    categoriesData?.map((item) => ({
+      id: item.id,
+      name: item.name,
+    })) ?? [];
+
   return (
     <main className="px-6 py-10">
       <Container className="space-y-6 px-0">
         <SectionTitle
           eyebrow="Catálogo"
           title="Produtos"
-          description="Aqui ficará o catálogo público da Mohr Distribuidora."
+          description="Encontre os itens ideais para o seu pedido."
+        />
+
+        <CatalogFilters
+          categories={categories}
+          initialQuery={query}
+          initialCategory={category}
         />
 
         {products.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-6">
             <p className="text-slate-600">
-              Nenhum produto ativo foi encontrado no momento.
+              Nenhum produto encontrado com os filtros informados.
             </p>
           </div>
         ) : (
