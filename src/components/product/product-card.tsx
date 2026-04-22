@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import type { Product } from "@/types/product";
 import { formatCurrency } from "@/lib/utils/currency";
 import { AddToCartButton } from "@/components/product/add-to-cart-button";
@@ -13,7 +14,8 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-      <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-slate-100">
+      <Link href={`/products/${product.slug}`}>
+      <div className="relative aspect-4/3 overflow-hidden rounded-xl bg-slate-100 cursor-pointer hover:opacity-90 transition">
         {product.imageUrl ? (
           <Image
             src={product.imageUrl}
@@ -47,6 +49,7 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
         )}
       </div>
+      </Link>
 
       <div className="mt-4 space-y-2">
         <div>

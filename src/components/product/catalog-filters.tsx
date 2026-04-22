@@ -7,20 +7,23 @@ type CatalogFiltersProps = {
   categories: { id: string; name: string; slug: string }[];
   initialQuery: string;
   initialCategory: string;
+  initialOrder: string;
 };
 
 export function CatalogFilters({
   categories,
   initialQuery,
   initialCategory,
+  initialOrder,
 }: CatalogFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const [query, setQuery] = useState(initialQuery);
   const [category, setCategory] = useState(initialCategory);
+  const [order, setOrder] = useState(initialOrder);
 
-  function updateUrl(nextQuery: string, nextCategory: string) {
+  function updateUrl(nextQuery: string, nextCategory: string, nextOrder: string) {
     const params = new URLSearchParams(searchParams.toString());
 
     if (nextQuery.trim()) {
@@ -35,24 +38,36 @@ export function CatalogFilters({
       params.delete("category");
     }
 
+    if (nextOrder) {
+      params.set("order", nextOrder);
+    } else {
+      params.delete("order");
+    }
+
     router.push(`/products?${params.toString()}`);
   }
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      updateUrl(query, category);
+      updateUrl(query, category, order);
     }, 400);
     return () => clearTimeout(timeout);
   }, [query]);
 
   function handleCategoryChange(value: string) {
     setCategory(value);
-    updateUrl(query, value);
+    updateUrl(query, value, order);
+  }
+
+  function handleOrderChange(value: string) {
+    setOrder(value);
+    updateUrl(query, category, value);
   }
 
   function clearFilters() {
     setQuery("");
     setCategory("");
+    setOrder("");
     router.push("/products");
   }
 
@@ -101,6 +116,21 @@ export function CatalogFilters({
               </button>
             ))}
           </div>
+        </div>
+
+        <div className="space-y-2">
+          <span className="text-sm font-medium text-slate-700">Ordenar por</span>
+          <select
+            value={order}
+            onChange={(e) => handleOrderChange(e.target.value)}
+            className="w-full rounded-xl border border-slate-200 px-4 py-2 outline-none transition focus:border-slate-400"
+          >
+            <option value="">Mais recentes</option>
+            <option value="price_asc">Menor preço</option>
+            <option value="price_desc">Maior preço</option>
+            <option value="name_asc">A → Z</option>
+            <option value="name_desc">Z → A</option>
+          </select>
         </div>
 
         <div className="flex items-end gap-3">

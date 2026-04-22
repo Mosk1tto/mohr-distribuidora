@@ -10,6 +10,7 @@ type ProductsPageProps = {
   searchParams: Promise<{
     q?: string;
     category?: string;
+    order?: string;
   }>;
 };
 
@@ -19,6 +20,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
   const query = params.q?.trim() ?? "";
   const category = params.category?.trim() ?? "";
+  const order = params.order?.trim() ?? "";
 
   let productsQuery = supabase
     .from("products")
@@ -40,7 +42,12 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       `
     )
     .eq("is_active", true)
-    .order("created_at", { ascending: false });
+    .order(
+      order === "price_asc" || order === "price_desc" ? "price" :
+      order === "name_asc" || order === "name_desc" ? "name" :
+      "created_at",
+      { ascending: order === "price_asc" || order === "name_asc" ? true : false }
+    );
 
   if (query) {
     productsQuery = productsQuery.ilike("name", `%${query}%`);
@@ -103,6 +110,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           categories={categories}
           initialQuery={query}
           initialCategory={category}
+          initialOrder={order}
         />
 
         <p className="text-sm text-slate-500">
