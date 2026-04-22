@@ -104,6 +104,12 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           initialCategory={category}
         />
 
+        <p className="text-sm text-slate-500">
+          {products.length}{" "}
+          {products.length === 1 ? "produto encontrado" : "produtos encontrados"}
+          {query && <> para <strong>"{query}"</strong></>}
+        </p>
+
         {products.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-6">
             <p className="text-slate-600">

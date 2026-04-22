@@ -23,8 +23,13 @@ export function ProductCard({ product }: ProductCardProps) {
             sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-sm text-slate-400">
-            Sem imagem
+          <div className="flex h-full flex-col items-center justify-center gap-1 text-slate-300">
+            <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <rect x="3" y="3" width="18" height="18" rx="2" strokeWidth="1.5"/>
+              <path d="M3 16l5-5 4 4 3-3 6 6" strokeWidth="1.5" strokeLinecap="round"/>
+              <circle cx="8.5" cy="8.5" r="1.5" strokeWidth="1.5"/>
+            </svg>
+            <span className="text-xs">Sem imagem</span>
           </div>
         )}
 

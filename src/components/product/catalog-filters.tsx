@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type CatalogFiltersProps = {
   categories: { id: string; name: string }[];
@@ -38,10 +38,12 @@ export function CatalogFilters({
     router.push(`/products?${params.toString()}`);
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    updateUrl(query, category);
-  }
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      updateUrl(query, category);
+    }, 400);
+    return () => clearTimeout(timeout);
+  }, [query]);
 
   function handleCategoryChange(value: string) {
     setCategory(value);
@@ -56,10 +58,10 @@ export function CatalogFilters({
 
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={(e) => e.preventDefault()}
       className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
     >
-      <div className="grid gap-4 md:grid-cols-[1fr_240px_auto]">
+      <div className="flex flex-col gap-4">
         <label className="space-y-2">
           <span className="text-sm font-medium text-slate-700">Buscar produto</span>
           <input
@@ -70,29 +72,38 @@ export function CatalogFilters({
           />
         </label>
 
-        <label className="space-y-2">
+        <div className="space-y-2">
           <span className="text-sm font-medium text-slate-700">Categoria</span>
-          <select
-            value={category}
-            onChange={(e) => handleCategoryChange(e.target.value)}
-            className="w-full rounded-xl border border-slate-200 px-4 py-2 outline-none transition focus:border-slate-400"
-          >
-            <option value="">Todas</option>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => handleCategoryChange("")}
+              className={`rounded-full px-3 py-1 text-sm font-medium transition border ${
+                category === ""
+                  ? "bg-slate-900 text-white border-slate-900"
+                  : "border-slate-200 text-slate-600 hover:bg-slate-50"
+              }`}
+            >
+              Todas
+            </button>
             {categories.map((item) => (
-              <option key={item.id} value={item.id}>
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => handleCategoryChange(item.id)}
+                className={`rounded-full px-3 py-1 text-sm font-medium transition border ${
+                  category === item.id
+                    ? "bg-slate-900 text-white border-slate-900"
+                    : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                }`}
+              >
                 {item.name}
-              </option>
+              </button>
             ))}
-          </select>
-        </label>
+          </div>
+        </div>
 
         <div className="flex items-end gap-3">
-          <button
-            type="submit"
-            className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
-          >
-            Buscar
-          </button>
 
           <button
             type="button"
