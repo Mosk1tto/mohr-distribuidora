@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Container } from "@/components/ui/container";
 import { createClient } from "@/lib/supabase/server";
+import { MessageCircle, Sparkles, BadgeDollarSign } from "lucide-react";
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -178,17 +179,17 @@ export default async function HomePage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
               {
-                emoji: "💬",
+                icon: <MessageCircle size={28} className="text-emerald-600" />,
                 title: "Pedido pelo WhatsApp",
                 desc: "Simples, rápido e sem complicação. Finalize seu pedido direto no WhatsApp.",
               },
               {
-                emoji: "📦",
+                icon: <Sparkles size={28} className="text-emerald-600" />,
                 title: "Produtos selecionados",
                 desc: "Trabalhamos só com marcas de qualidade para garantir a melhor experiência.",
               },
               {
-                emoji: "💰",
+                icon: <BadgeDollarSign size={28} className="text-emerald-600" />,
                 title: "Preços justos",
                 desc: "Preços competitivos para pessoa física e jurídica.",
               },
@@ -197,7 +198,7 @@ export default async function HomePage() {
                 key={item.title}
                 className="flex flex-col items-center text-center gap-3 rounded-2xl bg-white border border-slate-200 p-6"
               >
-                <span className="text-4xl">{item.emoji}</span>
+                {item.icon}
                 <h3 className="text-base font-bold text-slate-900">{item.title}</h3>
                 <p className="text-sm text-slate-500 leading-relaxed">{item.desc}</p>
               </div>
