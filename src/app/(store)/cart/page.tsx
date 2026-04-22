@@ -36,20 +36,26 @@ export default function CartPage() {
 
       setLoading(true);
 
-      const response = await fetch("/api/whatsapp", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          items,
-          mode: "cart",
-        }),
-      });
+      try {
+        const response = await fetch("/api/whatsapp", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            items,
+            mode: "cart",
+          }),
+        });
 
-      const data = await response.json();
-      setProducts(data.items ?? []);
-      setLoading(false);
+        const data = await response.json();
+        setProducts(data.items ?? []);
+      } catch {
+        addToast("Erro ao carregar o carrinho. Tente novamente.", "error", 4000);
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
     }
 
     loadCartProducts();
@@ -225,7 +231,7 @@ export default function CartPage() {
                               </div>
                             )}
                           </div>
-                          
+
                           <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between gap-2">
                               <div>
@@ -450,12 +456,6 @@ export default function CartPage() {
           </div>
         </div>
       </div>
-
-      <style>{`
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
     </main>
   );
 }

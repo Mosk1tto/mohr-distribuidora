@@ -1,7 +1,41 @@
 import Link from "next/link";
 import { Container } from "@/components/ui/container";
+import { createClient } from "@/lib/supabase/server";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const supabase = await createClient();
+
+  const { data: categoriesData } = await supabase
+    .from("categories")
+    .select("id, name, slug")
+    .order("name", { ascending: true });
+
+  const categories = categoriesData ?? [];
+
+    type FeaturedProduct = {
+      id: string;
+      name: string;
+      price: number | string;
+      image_url: string | null;
+      slug: string;
+      category: { name: string } | { name: string }[] | null;
+    };
+
+      const { data: featuredData } = await supabase
+        .from("products")
+        .select(`
+          id,
+          name,
+          price,
+          image_url,
+          slug,
+          category:categories ( name )
+        `)
+        .eq("is_active", true)
+        .order("created_at", { ascending: false })
+        .limit(3);
+
+      const featuredProducts = (featuredData ?? []) as FeaturedProduct[];
   return (
     <main className="min-h-screen bg-white">
 
@@ -52,23 +86,25 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-            {[
-              { emoji: "🧹", label: "Limpeza Geral", slug: "limpeza-geral" },
-              { emoji: "🪣", label: "Higiene", slug: "higiene" },
-              { emoji: "🌸", label: "Perfumados", slug: "perfumados" },
-              { emoji: "✨", label: "Ver tudo", slug: "" },
-            ].map((cat) => (
+            {categories.map((cat) => (
               <Link
-                key={cat.slug}
-                href={cat.slug ? `/products?category=${cat.slug}` : "/products"}
+                key={cat.id}
+                href={`/products?category=${cat.slug}`}
                 className="flex flex-col items-center gap-3 rounded-2xl border border-slate-200 bg-white p-5 text-center transition hover:border-emerald-300 hover:shadow-md"
               >
-                <span className="text-3xl">{cat.emoji}</span>
+                <span className="text-3xl">🏷️</span>
                 <span className="text-sm font-semibold text-slate-700">
-                  {cat.label}
+                  {cat.name}
                 </span>
               </Link>
             ))}
+            <Link
+              href="/products"
+              className="flex flex-col items-center gap-3 rounded-2xl border border-slate-200 bg-white p-5 text-center transition hover:border-emerald-300 hover:shadow-md"
+            >
+              <span className="text-3xl">✨</span>
+              <span className="text-sm font-semibold text-slate-700">Ver tudo</span>
+            </Link>
           </div>
         </Container>
       </section>
@@ -91,32 +127,43 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-            {[
-              { name: "Detergente Neutro", category: "Limpeza Geral", price: "R$ 4,99", emoji: "🍋" },
-              { name: "Água Sanitária", category: "Limpeza Geral", price: "R$ 12,50", emoji: "💧" },
-              { name: "Desinfetante", category: "Perfumados", price: "R$ 9,99", emoji: "🌸" },
-              { name: "Sabão em Pó", category: "Limpeza Geral", price: "R$ 18,90", emoji: "✨" },
-            ].map((product) => (
-              <Link
-                key={product.name}
-                href="/products"
-                className="group rounded-2xl border border-slate-200 bg-white overflow-hidden transition hover:shadow-md hover:border-emerald-200"
-              >
-                <div className="flex items-center justify-center bg-slate-50 aspect-square text-5xl group-hover:bg-emerald-50 transition">
-                  {product.emoji}
-                </div>
-                <div className="p-3">
-                  <p className="text-xs text-slate-400">{product.category}</p>
-                  <p className="text-sm font-semibold text-slate-900 mt-0.5 leading-tight">
-                    {product.name}
-                  </p>
-                  <p className="text-sm font-bold text-emerald-600 mt-1">
-                    {product.price}
-                  </p>
-                </div>
-              </Link>
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+            {featuredProducts.map((product) => {
+              const categoryName = Array.isArray(product.category)
+                ? product.category[0]?.name
+                : product.category?.name;
+
+              return (
+                <Link
+                  key={product.id}
+                  href="/products"
+                  className="group rounded-2xl border border-slate-200 bg-white overflow-hidden transition hover:shadow-md hover:border-emerald-200"
+                >
+                  <div className="relative aspect-square bg-slate-50 overflow-hidden group-hover:bg-emerald-50 transition">
+                    {product.image_url ? (
+                      <img
+                        src={product.image_url}
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-4xl">
+                        📦
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-3">
+                    <p className="text-xs text-slate-400">{categoryName ?? "Sem categoria"}</p>
+                    <p className="text-sm font-semibold text-slate-900 mt-0.5 leading-tight">
+                      {product.name}
+                    </p>
+                    <p className="text-sm font-bold text-emerald-600 mt-1">
+                      {new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(product.price))}
+                    </p>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </Container>
       </section>

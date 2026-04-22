@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { useCart } from "@/hooks/use-cart";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 type AddToCartButtonProps = {
   productId: string;
@@ -20,18 +20,11 @@ export function AddToCartButton({
   const [isAdding, setIsAdding] = useState(false);
   const quantity = getQuantity(productId);
 
-  async function handleAddToCart() {
+  function handleAddToCart() {
     setIsAdding(true);
-    
-    try {
-      addItem(productId);
-      addToast(`${productName} adicionado ao carrinho!`, "success", 2000);
-    } finally {
-      // Simula um pequeno delay para melhor feedback visual
-      setTimeout(() => {
-        setIsAdding(false);
-      }, 300);
-    }
+    addItem(productId);
+    addToast(`${productName} adicionado ao carrinho!`, "success", 2000);
+    setTimeout(() => setIsAdding(false), 300);
   }
 
   return (
@@ -61,12 +54,6 @@ export function AddToCartButton({
       ) : (
         "Adicionar ao carrinho"
       )}
-      
-      <style>{`
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
     </button>
   );
 }
