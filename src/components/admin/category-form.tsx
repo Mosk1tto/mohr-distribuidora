@@ -34,6 +34,7 @@ export function CategoryForm({
 
   const [name, setName] = useState(selectedCategory?.name ?? "");
   const [slug, setSlug] = useState(selectedCategory?.slug ?? "");
+  const [emoji, setEmoji] = useState(selectedCategory?.emoji ?? "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -42,6 +43,7 @@ export function CategoryForm({
   useEffect(() => {
     setName(selectedCategory?.name ?? "");
     setSlug(selectedCategory?.slug ?? "");
+    setEmoji(selectedCategory?.emoji ?? "");
     setError(null);
     setSuccessMessage(null);
     setErrors({});
@@ -83,6 +85,7 @@ export function CategoryForm({
         id: selectedCategory?.id,
         name: name.trim(),
         slug: slug.trim(),
+        emoji: emoji.trim() || null,
       };
 
       const response = await fetch("/api/admin/categories", {
@@ -108,7 +111,7 @@ export function CategoryForm({
 
       setName("");
       setSlug("");
-
+      setEmoji("");
       setTimeout(() => {
         router.refresh();
         onCancelEdit();
@@ -165,6 +168,20 @@ export function CategoryForm({
           </p>
         </div>
       )}
+
+      <label className="block space-y-2">
+        <span className="text-sm font-medium text-slate-700">
+          Emoji <span className="text-xs text-slate-500">(opcional)</span>
+        </span>
+        <input
+          value={emoji}
+          onChange={(e) => setEmoji(e.target.value)}
+          className="w-full rounded-xl border border-slate-200 px-4 py-2 outline-none transition focus:border-slate-400"
+          placeholder="Ex: 🧹"
+          maxLength={2}
+        />
+        <p className="text-xs text-slate-400">Cole um emoji para aparecer na home</p>
+      </label>
 
       {error ? (
         <div className="rounded-2xl border border-red-300 bg-red-50 p-3">

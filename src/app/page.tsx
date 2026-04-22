@@ -7,7 +7,7 @@ export default async function HomePage() {
 
   const { data: categoriesData } = await supabase
     .from("categories")
-    .select("id, name, slug")
+    .select("id, name, slug, emoji")
     .order("name", { ascending: true });
 
   const categories = categoriesData ?? [];
@@ -92,7 +92,7 @@ export default async function HomePage() {
                 href={`/products?category=${cat.slug}`}
                 className="flex flex-col items-center gap-3 rounded-2xl border border-slate-200 bg-white p-5 text-center transition hover:border-emerald-300 hover:shadow-md"
               >
-                <span className="text-3xl">🏷️</span>
+                <span className="text-3xl">{cat.emoji ?? "🏷️"}</span>
                 <span className="text-sm font-semibold text-slate-700">
                   {cat.name}
                 </span>

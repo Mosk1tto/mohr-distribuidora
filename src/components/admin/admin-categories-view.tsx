@@ -96,6 +96,7 @@ export function AdminCategoriesView({ categories }: AdminCategoriesViewProps) {
               >
                 <div className="min-w-0 flex-1">
                   <h3 className="text-base font-semibold text-slate-900">
+                    {category.emoji && <span className="mr-2">{category.emoji}</span>}
                     {category.name}
                   </h3>
                   <p className="text-sm text-slate-500">{category.slug}</p>

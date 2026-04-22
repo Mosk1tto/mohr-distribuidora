@@ -12,6 +12,7 @@ export type Product = {
   price: number;
   stockQuantity: number;
   isActive: boolean;
-  categoryId: string;
+  categoryId: string | null;
+  description?: string | null;
   category: Category | null;
 };

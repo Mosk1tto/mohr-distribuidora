@@ -9,6 +9,7 @@ type ProductRequestBody = {
   stockQuantity?: number;
   categoryId?: string;
   imageUrl?: string | null;
+  description?: string | null;
 };
 
 export async function POST(request: NextRequest) {
@@ -36,6 +37,7 @@ export async function POST(request: NextRequest) {
       stock_quantity: body.stockQuantity,
       category_id: body.categoryId,
       image_url: body.imageUrl ?? null,
+      description: body.description ?? null,
       is_active: true,
     });
 
@@ -83,6 +85,7 @@ export async function PUT(request: NextRequest) {
         stock_quantity: body.stockQuantity,
         category_id: body.categoryId,
         image_url: body.imageUrl ?? null,
+        description: body.description ?? null,
       })
       .eq("id", body.id);
 

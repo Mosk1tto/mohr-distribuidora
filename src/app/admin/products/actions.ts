@@ -15,6 +15,9 @@ export async function createProductAction(formData: FormData) {
     stockQuantity: Number(formData.get("stockQuantity") ?? 0),
     isActive: formData.get("isActive") === "on",
     categoryId: String(formData.get("categoryId") ?? ""),
+    description: formData.get("description")
+      ? String(formData.get("description"))
+      : null,
   };
 
   const parsed = productSchema.safeParse(rawData);
@@ -28,7 +31,7 @@ export async function createProductAction(formData: FormData) {
   }
 
   const supabase = await createClient();
-
+  
   const { error } = await supabase.from("products").insert({
     name: parsed.data.name,
     slug: parsed.data.slug,
@@ -37,6 +40,7 @@ export async function createProductAction(formData: FormData) {
     stock_quantity: parsed.data.stockQuantity,
     is_active: parsed.data.isActive ?? true,
     category_id: parsed.data.categoryId,
+    description: parsed.data.description ?? null,
   });
 
   if (error) {
@@ -70,6 +74,9 @@ export async function updateProductAction(formData: FormData) {
     stockQuantity: Number(formData.get("stockQuantity") ?? 0),
     isActive: formData.get("isActive") === "on",
     categoryId: String(formData.get("categoryId") ?? ""),
+    description: formData.get("description")
+      ? String(formData.get("description"))
+      : null,
   };
 
   const parsed = productSchema.safeParse(rawData);
@@ -94,6 +101,7 @@ export async function updateProductAction(formData: FormData) {
       stock_quantity: parsed.data.stockQuantity,
       is_active: parsed.data.isActive ?? true,
       category_id: parsed.data.categoryId,
+      description: parsed.data.description ?? null,
     })
     .eq("id", id);
 

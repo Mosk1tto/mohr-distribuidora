@@ -5,6 +5,7 @@ type CategoryRequestBody = {
   id?: string;
   name?: string;
   slug?: string;
+  emoji?: string | null;
 };
 
 export async function POST(request: NextRequest) {
@@ -22,6 +23,7 @@ export async function POST(request: NextRequest) {
     const { error } = await supabase.from("categories").insert({
       name: body.name.trim(),
       slug: body.slug.trim(),
+      emoji: body.emoji ?? null,
       created_at: new Date().toISOString(),
     });
 
@@ -60,6 +62,7 @@ export async function PUT(request: NextRequest) {
       .update({
         name: body.name.trim(),
         slug: body.slug.trim(),
+        emoji: body.emoji ?? null,
       })
       .eq("id", body.id);
 

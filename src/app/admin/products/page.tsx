@@ -57,7 +57,7 @@ export default async function AdminProductsPage({
       productsQuery,
       supabase
         .from("categories")
-        .select("id, name, slug, created_at")
+        .select("id, name, slug, emoji, created_at")
         .order("name", { ascending: true }),
     ]);
 
@@ -85,6 +85,7 @@ export default async function AdminProductsPage({
       id: category.id,
       name: category.name,
       slug: category.slug,
+      emoji: category.emoji,
       createdAt: category.created_at,
     })) ?? [];
 

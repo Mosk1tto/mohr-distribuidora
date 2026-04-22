@@ -11,6 +11,7 @@ export const productSchema = z.object({
     .min(0, "O estoque não pode ser negativo."),
   isActive: z.coerce.boolean().optional(),
   categoryId: z.string().min(1, "Selecione uma categoria."),
+  description: z.string().nullable().optional(),
 });
 
 export type ProductFormData = z.infer<typeof productSchema>;

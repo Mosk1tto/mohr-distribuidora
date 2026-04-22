@@ -48,6 +48,7 @@ export function ProductForm({
   );
   const [categoryId, setCategoryId] = useState(selectedProduct?.categoryId ?? "");
   const [imageUrl, setImageUrl] = useState(selectedProduct?.imageUrl ?? "");
+  const [description, setDescription] = useState(selectedProduct?.description ?? "");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -62,6 +63,7 @@ export function ProductForm({
     setStockQuantity(String(selectedProduct?.stockQuantity ?? ""));
     setCategoryId(selectedProduct?.categoryId ?? "");
     setImageUrl(selectedProduct?.imageUrl ?? "");
+    setDescription(selectedProduct?.description ?? "");
     setImageFile(null);
     setError(null);
     setSuccessMessage(null);
@@ -214,6 +216,7 @@ export function ProductForm({
         stockQuantity: Number(stockQuantity),
         categoryId,
         imageUrl: finalImageUrl,
+        description: description.trim() || null,
       };
 
       const response = await fetch("/api/admin/products", {
@@ -370,6 +373,19 @@ export function ProductForm({
         {errors.categoryId && (
           <p className="text-xs text-red-600">{errors.categoryId}</p>
         )}
+      </label>
+
+      <label className="block space-y-2">
+        <span className="text-sm font-medium text-slate-700">
+          Descrição <span className="text-xs text-slate-500">(opcional)</span>
+        </span>
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          rows={3}
+          placeholder="Ex: Produto concentrado, rende até 100 lavagens..."
+          className="w-full rounded-xl border border-slate-200 px-4 py-2 text-sm outline-none transition focus:border-slate-400 resize-none"
+        />
       </label>
 
       <div className="space-y-3">
