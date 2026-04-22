@@ -56,13 +56,13 @@ export function ProductCard({ product }: ProductCardProps) {
             {formatCurrency(product.price)}
           </span>
           <span
-            className={
+            className={`hidden sm:block ${
               isOutOfStock
                 ? "text-red-600 font-semibold"
                 : isLowStock
                 ? "text-amber-600 font-semibold"
                 : ""
-            }
+            }`}
           >
             {isOutOfStock
               ? "Sem estoque"

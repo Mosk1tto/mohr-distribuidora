@@ -47,8 +47,16 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   }
 
   if (category) {
-    productsQuery = productsQuery.eq("category_id", category);
+  const { data: categoryData } = await supabase
+    .from("categories")
+    .select("id")
+    .eq("slug", category)
+    .single();
+
+  if (categoryData?.id) {
+    productsQuery = productsQuery.eq("category_id", categoryData.id);
   }
+}
 
   const [{ data, error }, { data: categoriesData, error: categoriesError }] =
     await Promise.all([
@@ -82,7 +90,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     })) ?? [];
 
   return (
-    <main className="px-6 py-10">
+    <main className="px-4 py-8 md:px-6 md:py-10">
       <Container className="space-y-6 px-0">
         <SectionTitle
           eyebrow="Catálogo"
@@ -103,7 +111,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             </p>
           </div>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {products.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}

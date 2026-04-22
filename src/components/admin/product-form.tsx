@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
 import type { Product } from "@/types/product";
 
 type ProductFormProps = {
@@ -11,6 +12,13 @@ type ProductFormProps = {
   }[];
   selectedProduct: Product | null;
   onCancelEdit: () => void;
+};
+
+type FormErrors = {
+  name?: string;
+  price?: string;
+  stockQuantity?: string;
+  categoryId?: string;
 };
 
 function generateSlug(text: string): string {
@@ -30,6 +38,7 @@ export function ProductForm({
   onCancelEdit,
 }: ProductFormProps) {
   const router = useRouter();
+  const { addToast } = useToast();
 
   const [name, setName] = useState(selectedProduct?.name ?? "");
   const [slug, setSlug] = useState(selectedProduct?.slug ?? "");
@@ -44,6 +53,7 @@ export function ProductForm({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errors, setErrors] = useState<FormErrors>({});
 
   useEffect(() => {
     setName(selectedProduct?.name ?? "");
@@ -55,12 +65,38 @@ export function ProductForm({
     setImageFile(null);
     setError(null);
     setSuccessMessage(null);
+    setErrors({});
   }, [selectedProduct]);
 
   function handleNameChange(value: string) {
     setName(value);
-    // Gerar slug automaticamente
     setSlug(generateSlug(value));
+    if (errors.name) setErrors({ ...errors, name: undefined });
+  }
+
+  function validateForm(): boolean {
+    const newErrors: FormErrors = {};
+
+    if (!name.trim()) {
+      newErrors.name = "Nome é obrigatório";
+    } else if (name.trim().length < 3) {
+      newErrors.name = "Nome deve ter pelo menos 3 caracteres";
+    }
+
+    if (!price || Number(price) <= 0) {
+      newErrors.price = "Preço deve ser maior que 0";
+    }
+
+    if (!stockQuantity || Number(stockQuantity) < 0) {
+      newErrors.stockQuantity = "Estoque não pode ser negativo";
+    }
+
+    if (!categoryId) {
+      newErrors.categoryId = "Selecione uma categoria";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   }
 
   async function handleUploadImageOnly() {
@@ -122,12 +158,15 @@ export function ProductForm({
       }
 
       setSuccessMessage("Imagem atualizada com sucesso!");
+      addToast("Imagem atualizada com sucesso!", "success", 2000);
       router.refresh();
 
       // Limpar mensagem após 3 segundos
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro inesperado.");
+      const message = err instanceof Error ? err.message : "Erro inesperado.";
+      setError(message);
+      addToast(message, "error", 3000);
     } finally {
       setUploadingImage(false);
     }
@@ -137,13 +176,15 @@ export function ProductForm({
     event.preventDefault();
     setError(null);
     setSuccessMessage(null);
+
+    if (!validateForm()) {
+      addToast("Corrija os erros indicados", "error", 3000);
+      return;
+    }
+
     setSaving(true);
 
     try {
-      if (!name.trim() || !slug.trim() || !categoryId.trim()) {
-        throw new Error("Preencha todos os campos obrigatórios.");
-      }
-
       let finalImageUrl = imageUrl;
 
       // Se tem arquivo novo, faz upload antes
@@ -189,18 +230,21 @@ export function ProductForm({
         throw new Error(data.message ?? "Erro ao salvar produto.");
       }
 
-      setSuccessMessage(
-        selectedProduct
-          ? "Produto atualizado com sucesso!"
-          : "Produto criado com sucesso!"
-      );
+      const message = selectedProduct
+        ? "Produto atualizado com sucesso!"
+        : "Produto criado com sucesso!";
+
+      setSuccessMessage(message);
+      addToast(message, "success", 2000);
 
       setTimeout(() => {
         router.push("/admin/products");
         router.refresh();
       }, 1500);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro inesperado.");
+      const message = err instanceof Error ? err.message : "Erro inesperado.";
+      setError(message);
+      addToast(message, "error", 3000);
     } finally {
       setSaving(false);
     }
@@ -225,13 +269,21 @@ export function ProductForm({
       </div>
 
       <label className="block space-y-2">
-        <span className="text-sm font-medium text-slate-700">Nome</span>
+        <span className="text-sm font-medium text-slate-700">
+          Nome <span className="text-red-600">*</span>
+        </span>
         <input
           value={name}
           onChange={(e) => handleNameChange(e.target.value)}
-          className="w-full rounded-xl border border-slate-200 px-4 py-2"
+          className={`w-full rounded-xl border px-4 py-2 outline-none transition ${
+            errors.name
+              ? "border-red-300 focus:border-red-400"
+              : "border-slate-200 focus:border-slate-400"
+          }`}
           placeholder="Ex: Detergente Neutro"
+          aria-invalid={!!errors.name}
         />
+        {errors.name && <p className="text-xs text-red-600">{errors.name}</p>}
       </label>
 
       {slug && (
@@ -244,33 +296,69 @@ export function ProductForm({
 
       <div className="grid gap-4 md:grid-cols-2">
         <label className="block space-y-2">
-          <span className="text-sm font-medium text-slate-700">Preço</span>
+          <span className="text-sm font-medium text-slate-700">
+            Preço <span className="text-red-600">*</span>
+          </span>
           <input
             type="number"
             step="0.01"
             value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            className="w-full rounded-xl border border-slate-200 px-4 py-2"
+            onChange={(e) => {
+              setPrice(e.target.value);
+              if (errors.price) setErrors({ ...errors, price: undefined });
+            }}
+            className={`w-full rounded-xl border px-4 py-2 outline-none transition ${
+              errors.price
+                ? "border-red-300 focus:border-red-400"
+                : "border-slate-200 focus:border-slate-400"
+            }`}
+            aria-invalid={!!errors.price}
           />
+          {errors.price && <p className="text-xs text-red-600">{errors.price}</p>}
         </label>
 
         <label className="block space-y-2">
-          <span className="text-sm font-medium text-slate-700">Estoque</span>
+          <span className="text-sm font-medium text-slate-700">
+            Estoque <span className="text-red-600">*</span>
+          </span>
           <input
             type="number"
             value={stockQuantity}
-            onChange={(e) => setStockQuantity(e.target.value)}
-            className="w-full rounded-xl border border-slate-200 px-4 py-2"
+            onChange={(e) => {
+              setStockQuantity(e.target.value);
+              if (errors.stockQuantity)
+                setErrors({ ...errors, stockQuantity: undefined });
+            }}
+            className={`w-full rounded-xl border px-4 py-2 outline-none transition ${
+              errors.stockQuantity
+                ? "border-red-300 focus:border-red-400"
+                : "border-slate-200 focus:border-slate-400"
+            }`}
+            aria-invalid={!!errors.stockQuantity}
           />
+          {errors.stockQuantity && (
+            <p className="text-xs text-red-600">{errors.stockQuantity}</p>
+          )}
         </label>
       </div>
 
       <label className="block space-y-2">
-        <span className="text-sm font-medium text-slate-700">Categoria</span>
+        <span className="text-sm font-medium text-slate-700">
+          Categoria <span className="text-red-600">*</span>
+        </span>
         <select
           value={categoryId}
-          onChange={(e) => setCategoryId(e.target.value)}
-          className="w-full rounded-xl border border-slate-200 px-4 py-2"
+          onChange={(e) => {
+            setCategoryId(e.target.value);
+            if (errors.categoryId)
+              setErrors({ ...errors, categoryId: undefined });
+          }}
+          className={`w-full rounded-xl border px-4 py-2 outline-none transition ${
+            errors.categoryId
+              ? "border-red-300 focus:border-red-400"
+              : "border-slate-200 focus:border-slate-400"
+          }`}
+          aria-invalid={!!errors.categoryId}
         >
           <option value="">Selecione uma categoria</option>
           {categories.map((category) => (
@@ -279,11 +367,16 @@ export function ProductForm({
             </option>
           ))}
         </select>
+        {errors.categoryId && (
+          <p className="text-xs text-red-600">{errors.categoryId}</p>
+        )}
       </label>
 
       <div className="space-y-3">
         <label className="block space-y-2">
-          <span className="text-sm font-medium text-slate-700">Imagem</span>
+          <span className="text-sm font-medium text-slate-700">
+            Imagem <span className="text-xs text-slate-500">(opcional)</span>
+          </span>
           <input
             type="file"
             accept="image/*"
@@ -292,7 +385,6 @@ export function ProductForm({
           />
         </label>
 
-        {/* Botão para trocar imagem SEM salvar produto */}
         {selectedProduct && imageFile && (
           <button
             type="button"
@@ -317,8 +409,8 @@ export function ProductForm({
       ) : null}
 
       {error ? (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-3">
-          <p className="text-sm text-rose-600">{error}</p>
+        <div className="rounded-2xl border border-red-300 bg-red-50 p-3">
+          <p className="text-sm text-red-600">{error}</p>
         </div>
       ) : null}
 
@@ -331,7 +423,7 @@ export function ProductForm({
       <button
         type="submit"
         disabled={saving || uploadingImage}
-        className="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:opacity-50"
+        className="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:opacity-60"
       >
         {uploadingImage
           ? "Enviando imagem..."

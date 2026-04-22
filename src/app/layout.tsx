@@ -10,7 +10,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body>
+      <body className="overflow-x-hidden">
         <CartProvider>
           <ToastProvider>
             <ToastContainer />

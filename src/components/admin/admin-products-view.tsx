@@ -85,7 +85,7 @@ export function AdminProductsView({
   );
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[420px_1fr]">
+    <div className="grid gap-4 sm:gap-8 lg:grid-cols-[300px_1fr]">
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <ProductForm
           categories={categories}
@@ -105,7 +105,7 @@ export function AdminProductsView({
         </div>
 
         {/* Busca */}
-        <form onSubmit={handleSearch} className="mb-6 flex gap-2">
+        <form onSubmit={handleSearch} className="mb-6 flex flex-col sm:flex-row gap-2">
           <input
             type="text"
             placeholder="Buscar por nome..."
@@ -149,10 +149,10 @@ export function AdminProductsView({
             {filteredProducts.map((product) => (
               <article
                 key={product.id}
-                className="flex items-center gap-4 rounded-2xl border border-slate-200 p-4"
+                className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 rounded-2xl border border-slate-200 p-3 sm:p-4"
               >
                 {/* Miniatura */}
-                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-slate-100">
+                <div className="relative h-12 w-12 sm:h-16 sm:w-16 shrink-0 overflow-hidden rounded-xl bg-slate-100">
                   {product.imageUrl ? (
                     <Image
                       src={product.imageUrl}
@@ -182,11 +182,12 @@ export function AdminProductsView({
                 </div>
 
                 {/* Botões */}
-                <div className="flex shrink-0 gap-2">
+                {/* Botões */}
+                <div className="flex shrink-0 gap-2 w-full sm:w-auto">
                   <button
                     type="button"
                     onClick={() => handleEdit(product)}
-                    className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                    className="flex-1 sm:flex-none rounded-xl border border-slate-200 px-3 py-2 text-xs sm:text-sm font-medium text-slate-700 transition hover:bg-slate-50"
                   >
                     Editar
                   </button>
@@ -194,7 +195,7 @@ export function AdminProductsView({
                     type="button"
                     onClick={() => handleDelete(product.id)}
                     disabled={deletingId === product.id}
-                    className="rounded-xl border border-rose-200 px-4 py-2 text-sm font-medium text-rose-600 transition hover:bg-rose-50 disabled:opacity-50"
+                    className="flex-1 sm:flex-none rounded-xl border border-rose-200 px-3 py-2 text-xs sm:text-sm font-medium text-rose-600 transition hover:bg-rose-50 disabled:opacity-50"
                   >
                     {deletingId === product.id ? "Excluindo..." : "Excluir"}
                   </button>
