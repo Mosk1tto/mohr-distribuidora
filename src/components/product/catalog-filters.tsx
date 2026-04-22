@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 type CatalogFiltersProps = {
-  categories: { id: string; name: string }[];
+  categories: { id: string; name: string; slug: string }[];
   initialQuery: string;
   initialCategory: string;
 };
@@ -90,9 +90,9 @@ export function CatalogFilters({
               <button
                 key={item.id}
                 type="button"
-                onClick={() => handleCategoryChange(item.id)}
+                onClick={() => handleCategoryChange(item.slug)}
                 className={`rounded-full px-3 py-1 text-sm font-medium transition border ${
-                  category === item.id
+                  category === item.slug
                     ? "bg-slate-900 text-white border-slate-900"
                     : "border-slate-200 text-slate-600 hover:bg-slate-50"
                 }`}

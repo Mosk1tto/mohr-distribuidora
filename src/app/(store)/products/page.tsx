@@ -47,21 +47,21 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   }
 
   if (category) {
-  const { data: categoryData } = await supabase
-    .from("categories")
-    .select("id")
-    .eq("slug", category)
-    .single();
+    const { data: categoryData } = await supabase
+      .from("categories")
+      .select("id")
+      .eq("slug", category)
+      .single();
 
-  if (categoryData?.id) {
-    productsQuery = productsQuery.eq("category_id", categoryData.id);
+    if (categoryData?.id) {
+      productsQuery = productsQuery.eq("category_id", categoryData.id);
+    }
   }
-}
 
   const [{ data, error }, { data: categoriesData, error: categoriesError }] =
     await Promise.all([
       productsQuery,
-      supabase.from("categories").select("id, name").order("name", { ascending: true }),
+      supabase.from("categories").select("id, name, slug").order("name", { ascending: true }),
     ]);
 
   if (error || categoriesError) {
@@ -87,6 +87,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     categoriesData?.map((item) => ({
       id: item.id,
       name: item.name,
+      slug: item.slug,
     })) ?? [];
 
   return (
