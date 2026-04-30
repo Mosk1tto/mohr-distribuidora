@@ -1,8 +1,23 @@
 @import "tailwindcss";
 
 :root {
-  --font-display: "Plus Jakarta Sans", sans-serif;
-  --font-body: "Inter", sans-serif;
+  --brand:          #1a5c38;
+  --brand-hover:    #145230;
+  --brand-light:    #eaf4ee;
+  --brand-muted:    #d0e9d9;
+  --brand-dark:     #0d3522;
+  --surface:        #faf9f7;
+  --surface-card:   #ffffff;
+  --border:         oklch(from #1a5c38 l c h / 0.14);
+  --text-primary:   #1a1f1c;
+  --text-muted:     #5a6b61;
+  --radius-card:    1rem;
+  --transition-ui:  180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root {
+  --font-display: "Bricolage Grotesque", sans-serif;
+  --font-body:    "General Sans", sans-serif;
 }
 
 body {
@@ -17,4 +32,18 @@ h1, h2, h3, h4, h5, h6 {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+@keyframes draw-check-path {
+  to { stroke-dashoffset: 0; }
+}
+
+.grain-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
 }

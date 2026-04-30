@@ -96,7 +96,7 @@ export default async function HomePage() {
       {/* ── HERO ─────────────────────────────────────────── */}
       <section
         className="overflow-hidden py-10 sm:py-16"
-        style={{ backgroundColor: "#f0fdf6" }}
+        style={{ backgroundColor: "var(--surface)" }}
       >
         <div className="mx-auto max-w-screen-xl flex flex-col lg:flex-row items-center gap-10 px-4 sm:px-8 lg:pl-16 lg:pr-0">
           {/* Texto — esquerda */}
@@ -115,10 +115,16 @@ export default async function HomePage() {
             </FadeIn>
 
             <FadeIn direction="up" delay={0.1}>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-800 leading-tight">
+              <h1
+                className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1]"
+                style={{
+                  color: "var(--text-primary)",
+                  fontFamily: "var(--font-display)",
+                }}
+              >
                 Tudo em{" "}
                 <span className="relative inline-block">
-                  <span className="relative z-10 text-emerald-600">
+                  <span className="relative z-10" style={{ color: "var(--brand)" }}>
                     higiene e limpeza,
                   </span>
                   <svg
@@ -129,7 +135,7 @@ export default async function HomePage() {
                   >
                     <path
                       d="M2 6 Q50 2 100 5 Q150 8 198 4"
-                      stroke="#6ee7b7"
+                      stroke="var(--brand)"
                       strokeWidth="3"
                       strokeLinecap="round"
                       fill="none"
@@ -151,8 +157,8 @@ export default async function HomePage() {
               <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
                 <Link
                   href="/products"
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl px-7 py-3.5 text-sm font-bold text-white shadow-md transition hover:opacity-90 active:scale-95"
-                  style={{ backgroundColor: "#059669" }}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl px-7 py-3.5 text-sm font-bold text-white shadow-md transition hover:opacity-90 active:scale-95"
+                  style={{ backgroundColor: "var(--brand)", transition: "var(--transition-ui)" }}
                 >
                   Ver produtos
                   <ArrowRight size={16} />
@@ -191,55 +197,66 @@ export default async function HomePage() {
             </div>
           </FadeIn>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div className="flex flex-col sm:flex-row items-start gap-0">
             {[
               {
-                step: "1",
-                icon: <Package size={24} className="text-emerald-600" />,
+                step: "01",
+                icon: <Package size={20} />,
                 title: "Escolha os produtos",
                 desc: "Navegue pelo catálogo e adicione o que precisar ao carrinho.",
               },
               {
-                step: "2",
-                icon: <ShieldCheck size={24} className="text-emerald-600" />,
+                step: "02",
+                icon: <ShieldCheck size={20} />,
                 title: "Revise seu pedido",
                 desc: "Confira os itens e informe seu nome e telefone.",
               },
               {
-                step: "3",
-                icon: <MessageCircle size={24} className="text-emerald-600" />,
+                step: "03",
+                icon: <MessageCircle size={20} />,
                 title: "Finalize no WhatsApp",
                 desc: "Com um clique, seu pedido vai direto para nosso WhatsApp.",
               },
-            ].map((item, i) => (
-              <FadeIn key={item.step} direction="up" delay={i * 0.15}>
-                <div
-                  className="relative flex flex-col gap-4 rounded-2xl border p-6"
-                  style={{ borderColor: "#e5e7eb", backgroundColor: "#fafaf8" }}
-                >
+            ].map((item, i, arr) => (
+              <FadeIn
+                key={item.step}
+                direction="up"
+                delay={i * 0.15}
+                className="flex-1"
+              >
+                <div className="flex flex-col gap-4 p-6">
+                  {/* Número + linha conectora */}
                   <div className="flex items-center gap-3">
-                    <div
-                      className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white"
-                      style={{ backgroundColor: "#059669" }}
+                    <span
+                      className="font-bold text-xs tracking-widest"
+                      style={{
+                        color: "var(--brand)",
+                        fontFamily: "var(--font-display)",
+                      }}
                     >
                       {item.step}
-                    </div>
-                    <div
-                      className="h-px flex-1"
-                      style={{ backgroundColor: "#d1fae5" }}
-                    />
+                    </span>
+                    {i < arr.length - 1 && (
+                      <div
+                        className="hidden sm:block h-px flex-1"
+                        style={{
+                          background:
+                            "linear-gradient(to right, var(--brand-muted), transparent)",
+                        }}
+                      />
+                    )}
                   </div>
-                  <div
-                    className="flex h-10 w-10 items-center justify-center rounded-xl"
-                    style={{ backgroundColor: "#ecfdf5" }}
-                  >
-                    {item.icon}
-                  </div>
+                  {/* Ícone sem fundo colorido */}
+                  <div style={{ color: "var(--brand)" }}>{item.icon}</div>
+                  {/* Texto */}
                   <div>
-                    <h3 className="font-bold text-slate-800 mb-1">
+                    <h3 className="font-semibold text-slate-800 mb-1 text-sm">
                       {item.title}
                     </h3>
-                    <p className="text-sm text-slate-500 leading-relaxed">
+                    <p
+                      className="text-sm leading-relaxed"
+                      style={{ color: "var(--text-muted)" }}
+                    >
                       {item.desc}
                     </p>
                   </div>
@@ -269,10 +286,10 @@ export default async function HomePage() {
               <FadeIn key={cat.id} direction="up" delay={i * 0.07}>
                 <Link
                   href={`/products?category=${cat.slug}`}
-                  className="group flex flex-col items-start gap-3 rounded-2xl border bg-white p-5 transition hover:shadow-md hover:-translate-y-0.5 duration-200"
+                  className="group flex flex-col items-start gap-3 rounded-xl border bg-white p-5 transition hover:shadow-md hover:-translate-y-0.5 duration-200"
                   style={{ borderColor: "#d1fae5" }}
                 >
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#eef3ec]">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#eef3ec]">
                     {getCategoryIcon(cat.slug, cat.name)}
                   </div>
                   <span className="text-sm font-semibold text-slate-700 group-hover:text-emerald-700 transition">
@@ -284,7 +301,7 @@ export default async function HomePage() {
             <FadeIn direction="up" delay={categories.length * 0.07}>
               <Link
                 href="/products"
-                className="group flex flex-col items-start gap-3 rounded-2xl border border-dashed bg-white p-5 transition hover:shadow-md hover:-translate-y-0.5 duration-200"
+                className="group flex flex-col items-start gap-3 rounded-xl border border-dashed bg-white p-5 transition hover:shadow-md hover:-translate-y-0.5 duration-200"
                 style={{ borderColor: "#6ee7b7" }}
               >
                 <Package
@@ -333,7 +350,7 @@ export default async function HomePage() {
                   <FadeIn key={product.id} direction="up" delay={i * 0.12}>
                     <Link
                       href={`/products/${product.slug}`}
-                      className="group flex flex-col rounded-2xl border overflow-hidden bg-white transition hover:shadow-lg hover:-translate-y-1 duration-300"
+                      className="group flex flex-col rounded-xl border overflow-hidden bg-white transition hover:shadow-lg hover:-translate-y-1 duration-300"
                       style={{ borderColor: "#e5e7eb" }}
                     >
                       <div
@@ -388,18 +405,44 @@ export default async function HomePage() {
 
       {/* ── CTA FINAL ─────────────────────────────────────── */}
       <section
-        className="relative overflow-hidden px-4 py-20 text-white"
+        className="grain-overlay relative overflow-hidden px-4 py-20 text-white"
         style={{ backgroundColor: "#064e3b" }}
       >
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -top-20 -right-20 h-80 w-80 rounded-full opacity-10 blur-3xl"
-          style={{ backgroundColor: "#6ee7b7" }}
-        />
         <Container className="relative z-10">
           <FadeIn direction="up">
             <div className="flex flex-col items-center text-center gap-6 max-w-xl mx-auto">
-              <span className="text-4xl">✅</span>
+              <svg
+                width="48"
+                height="48"
+                viewBox="0 0 48 48"
+                fill="none"
+                aria-hidden="true"
+                className="text-emerald-300"
+                style={{ animation: "draw-check 0.6s ease forwards" }}
+              >
+                <circle
+                  cx="24"
+                  cy="24"
+                  r="20"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeDasharray="126"
+                  strokeDashoffset="0"
+                  opacity="0.3"
+                />
+                <path
+                  d="M14 24l7 7 13-14"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeDasharray="30"
+                  strokeDashoffset="30"
+                  style={{
+                    animation: "draw-check-path 0.5s 0.2s ease forwards",
+                  }}
+                />
+              </svg>
               <h2 className="text-2xl sm:text-3xl font-bold leading-tight">
                 Seu pedido está a um clique de distância
               </h2>
@@ -410,7 +453,7 @@ export default async function HomePage() {
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link
                   href="/products"
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-8 py-3.5 text-sm font-bold text-emerald-700 transition hover:bg-emerald-50 shadow-lg active:scale-95"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-8 py-3.5 text-sm font-bold text-emerald-700 transition hover:bg-emerald-50 shadow-lg active:scale-95"
                 >
                   Ver catálogo
                   <ArrowRight size={16} />
@@ -419,7 +462,7 @@ export default async function HomePage() {
                   href="https://wa.me/5546999218016"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-emerald-400/40 px-8 py-3.5 text-sm font-semibold text-white transition hover:bg-emerald-800 active:scale-95"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-400/40 px-8 py-3.5 text-sm font-semibold text-white transition hover:bg-emerald-800 active:scale-95"
                 >
                   <MessageCircle size={16} />
                   WhatsApp
