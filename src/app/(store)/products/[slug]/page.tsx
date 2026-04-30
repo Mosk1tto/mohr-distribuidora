@@ -25,8 +25,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
     const supabase = await createClient();
 
     const { data: product, error: productError } = await supabase
-        .from("products")
-        .select(`
+    .from("products")
+    .select(`
         id,
         name,
         slug,
@@ -36,12 +36,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
         is_active,
         description,
         category:categories ( name, slug )
-        `)
-        .eq("slug", slug)
-        .eq("is_active", true)
-        .single();
+    `)
+    .eq("slug", slug)
+    .eq("is_active", true)
+    .single();
 
-    console.log("erro supabase:", productError);
+    if (productError) {
+    console.error("Erro ao buscar produto:", productError.message);
+    }
 
     const typedProduct = product as unknown as ProductRow | null;
     if (!typedProduct) notFound();

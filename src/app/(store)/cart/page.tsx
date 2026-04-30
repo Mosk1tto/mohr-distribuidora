@@ -114,7 +114,9 @@ export default function CartPage() {
       }
 
       if (data.url) {
-        window.location.href = data.url;
+        clearCart();
+        window.open(data.url, "_blank");
+        router.push("/pedido-enviado");
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : "Erro ao finalizar pedido";
