@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Container } from "@/components/ui/container";
 import { FadeIn } from "@/components/ui/fade-in";
 import { createClient } from "@/lib/supabase/server";
@@ -7,8 +8,6 @@ import {
   MessageCircle,
   Package,
   ShieldCheck,
-  Store,
-  Sparkles,
   SprayCan,
   Droplets,
   Shield,
@@ -18,202 +17,166 @@ import {
   ShoppingBasket,
 } from "lucide-react";
 
+type FeaturedProduct = {
+  id: string;
+  name: string;
+  price: number | string;
+  image_url: string | null;
+  slug: string;
+  category: { name: string } | { name: string }[] | null;
+};
+
+function getCategoryIcon(slug?: string, name?: string) {
+  const key = `${slug ?? ""} ${name ?? ""}`.toLowerCase();
+
+  if (key.includes("desinf") || key.includes("bacter")) {
+    return <Shield size={22} className="text-[#426b52]" />;
+  }
+
+  if (key.includes("deterg") || key.includes("lava") || key.includes("sab")) {
+    return <Droplets size={22} className="text-[#426b52]" />;
+  }
+
+  if (
+    key.includes("limpeza pesada") ||
+    key.includes("multiuso") ||
+    key.includes("removedor")
+  ) {
+    return <SprayCan size={22} className="text-[#426b52]" />;
+  }
+
+  if (
+    key.includes("casa") ||
+    key.includes("cozinha") ||
+    key.includes("banheiro")
+  ) {
+    return <Home size={22} className="text-[#426b52]" />;
+  }
+
+  if (
+    key.includes("vassoura") ||
+    key.includes("rodo") ||
+    key.includes("escova")
+  ) {
+    return <BrushCleaning size={22} className="text-[#426b52]" />;
+  }
+
+  if (
+    key.includes("mercado") ||
+    key.includes("utilidade") ||
+    key.includes("geral")
+  ) {
+    return <ShoppingBasket size={22} className="text-[#426b52]" />;
+  }
+
+  return <Package size={22} className="text-[#426b52]" />;
+}
+
 export default async function HomePage() {
   const supabase = await createClient();
 
-  const { data: categoriesData } = await supabase
-    .from("categories")
-    .select("id, name, slug, emoji")
-    .order("name", { ascending: true });
+  const [{ data: categoriesData }, { data: featuredData }] = await Promise.all([
+    supabase
+      .from("categories")
+      .select("id, name, slug, emoji")
+      .order("name", { ascending: true }),
+    supabase
+      .from("products")
+      .select(`id, name, price, image_url, slug, category:categories ( name )`)
+      .eq("is_active", true)
+      .order("created_at", { ascending: false })
+      .limit(3),
+  ]);
 
   const categories = categoriesData ?? [];
-
-  type FeaturedProduct = {
-    id: string;
-    name: string;
-    price: number | string;
-    image_url: string | null;
-    slug: string;
-    category: { name: string } | { name: string }[] | null;
-  };
-
-  const { data: featuredData } = await supabase
-    .from("products")
-    .select(`id, name, price, image_url, slug, category:categories ( name )`)
-    .eq("is_active", true)
-    .order("created_at", { ascending: false })
-    .limit(3);
-
   const featuredProducts = (featuredData ?? []) as FeaturedProduct[];
-
-  function getCategoryIcon(slug?: string, name?: string) {
-    const key = `${slug ?? ""} ${name ?? ""}`.toLowerCase();
-
-    if (key.includes("desinf") || key.includes("bacter")) {
-      return <Shield size={22} className="text-[#426b52]" />;
-    }
-
-    if (key.includes("deterg") || key.includes("lava") || key.includes("sab")) {
-      return <Droplets size={22} className="text-[#426b52]" />;
-    }
-
-    if (
-      key.includes("limpeza pesada") ||
-      key.includes("multiuso") ||
-      key.includes("removedor")
-    ) {
-      return <SprayCan size={22} className="text-[#426b52]" />;
-    }
-
-    if (
-      key.includes("casa") ||
-      key.includes("cozinha") ||
-      key.includes("banheiro")
-    ) {
-      return <Home size={22} className="text-[#426b52]" />;
-    }
-
-    if (
-      key.includes("vassoura") ||
-      key.includes("rodo") ||
-      key.includes("escova")
-    ) {
-      return <BrushCleaning size={22} className="text-[#426b52]" />;
-    }
-
-    if (
-      key.includes("mercado") ||
-      key.includes("utilidade") ||
-      key.includes("geral")
-    ) {
-      return <ShoppingBasket size={22} className="text-[#426b52]" />;
-    }
-
-    return <Package size={22} className="text-[#426b52]" />;
-  }
 
   return (
     <main className="min-h-screen" style={{ backgroundColor: "#fafaf8" }}>
       {/* ── HERO ─────────────────────────────────────────── */}
       <section
-        className="relative overflow-hidden px-4 py-16 sm:py-24"
+        className="overflow-hidden py-10 sm:py-16"
         style={{ backgroundColor: "#f0fdf6" }}
       >
-        {/* Bolha decorativa de fundo */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -top-24 -right-24 h-96 w-96 rounded-full opacity-30 blur-3xl"
-          style={{ backgroundColor: "#6ee7b7" }}
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -bottom-16 -left-16 h-64 w-64 rounded-full opacity-20 blur-3xl"
-          style={{ backgroundColor: "#a7f3d0" }}
-        />
-
-        <Container className="relative z-10">
-          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
-            {/* Texto */}
-            <div className="flex-1 space-y-6 text-center lg:text-left">
-              <FadeIn direction="up">
-                <span
-                  className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold text-emerald-700"
-                  style={{ backgroundColor: "#d1fae5" }}
-                >
-                  <Heart
-                    size={12}
-                    className="fill-emerald-500 text-emerald-500"
-                  />
-                  Bem-vindo à Mohr Distribuidora
-                </span>
-              </FadeIn>
-
-              <FadeIn direction="up" delay={0.1}>
-                <h1 className="text-4xl sm:text-5xl font-bold text-slate-800 leading-tight">
-                  Tudo para manter{" "}
-                  <span className="relative inline-block">
-                    <span className="relative z-10 text-emerald-600">
-                      sua casa
-                    </span>
-                    <svg
-                      aria-hidden="true"
-                      className="absolute -bottom-1 left-0 w-full"
-                      viewBox="0 0 200 8"
-                      fill="none"
-                    >
-                      <path
-                        d="M2 6 Q50 2 100 5 Q150 8 198 4"
-                        stroke="#6ee7b7"
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        fill="none"
-                      />
-                    </svg>
-                  </span>{" "}
-                  limpa e organizada
-                </h1>
-              </FadeIn>
-
-              <FadeIn direction="up" delay={0.2}>
-                <p className="text-slate-600 text-lg leading-relaxed max-w-lg mx-auto lg:mx-0">
-                  Produtos de limpeza de qualidade, direto pra você. Faça seu
-                  pedido pelo WhatsApp de forma simples e rápida.
-                </p>
-              </FadeIn>
-
-              <FadeIn direction="up" delay={0.3}>
-                <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-                  <Link
-                    href="/products"
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl px-7 py-3.5 text-sm font-bold text-white shadow-md transition hover:opacity-90 active:scale-95"
-                    style={{ backgroundColor: "#059669" }}
-                  >
-                    Ver produtos
-                    <ArrowRight size={16} />
-                  </Link>
-                  <a
-                    href="https://wa.me/5546999218016"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl border px-7 py-3.5 text-sm font-semibold text-slate-700 transition hover:bg-white active:scale-95"
-                    style={{ borderColor: "#d1fae5", backgroundColor: "white" }}
-                  >
-                    <MessageCircle size={16} className="text-emerald-600" />
-                    Chamar no WhatsApp
-                  </a>
-                </div>
-              </FadeIn>
-            </div>
-
-            {/* Ilustração / imagem */}
-            <FadeIn
-              direction="left"
-              delay={0.2}
-              className="flex-1 w-full max-w-sm lg:max-w-md"
-            >
-              <div
-                className="relative rounded-3xl overflow-hidden shadow-xl"
-                style={{ aspectRatio: "4/3" }}
+        <div className="mx-auto max-w-screen-xl flex flex-col lg:flex-row items-center gap-10 px-4 sm:px-8 lg:pl-16 lg:pr-0">
+          {/* Texto — esquerda */}
+          <div className="flex-1 space-y-6 text-center lg:text-left shrink-0">
+            <FadeIn direction="up">
+              <span
+                className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold text-emerald-700"
+                style={{ backgroundColor: "#d1fae5" }}
               >
-                <img
-                  src="https://images.unsplash.com/photo-1563453392212-326f5e854473?w=800&q=80"
-                  alt="Produtos de limpeza organizados"
-                  className="w-full h-full object-cover"
-                  width={800}
-                  height={600}
-                  loading="eager"
+                <Heart
+                  size={12}
+                  className="fill-emerald-500 text-emerald-500"
                 />
-                {/* Badge flutuante */}
-                <div className="absolute bottom-4 left-4 flex items-center gap-2 rounded-2xl bg-white px-4 py-2 shadow-lg">
-                  <Sparkles size={16} className="text-emerald-500" />
-                  <span className="text-xs font-semibold text-slate-700">
-                    Pedido em minutos ✓
+                Bem-vindo à Mohr Distribuidora
+              </span>
+            </FadeIn>
+
+            <FadeIn direction="up" delay={0.1}>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-800 leading-tight">
+                Tudo em{" "}
+                <span className="relative inline-block">
+                  <span className="relative z-10 text-emerald-600">
+                    higiene e limpeza,
                   </span>
-                </div>
+                  <svg
+                    aria-hidden="true"
+                    className="absolute -bottom-1 left-0 w-full"
+                    viewBox="0 0 200 8"
+                    fill="none"
+                  >
+                    <path
+                      d="M2 6 Q50 2 100 5 Q150 8 198 4"
+                      stroke="#6ee7b7"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      fill="none"
+                    />
+                  </svg>
+                </span>{" "}
+                a uma mensagem de distância
+              </h1>
+            </FadeIn>
+
+            <FadeIn direction="up" delay={0.2}>
+              <p className="text-slate-600 text-base leading-relaxed max-w-lg mx-auto lg:mx-0">
+                Navegue pelo catálogo, escolha o que precisar e finalize seu
+                pedido direto no WhatsApp.
+              </p>
+            </FadeIn>
+
+            <FadeIn direction="up" delay={0.3}>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+                <Link
+                  href="/products"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl px-7 py-3.5 text-sm font-bold text-white shadow-md transition hover:opacity-90 active:scale-95"
+                  style={{ backgroundColor: "#059669" }}
+                >
+                  Ver produtos
+                  <ArrowRight size={16} />
+                </Link>
               </div>
             </FadeIn>
           </div>
-        </Container>
+
+          {/* Imagem — direita */}
+          <FadeIn
+            direction="left"
+            delay={0.15}
+            className="w-full lg:w-[48%] shrink-0"
+          >
+            <Image
+              src="/prateleira.webp"
+              alt="Prateleira com produtos de limpeza organizados"
+              width={1600}
+              height={1200}
+              priority
+              className="w-full h-auto"
+            />
+          </FadeIn>
+        </div>
       </section>
 
       {/* ── COMO FUNCIONA ─────────────────────────────────── */}
@@ -345,10 +308,10 @@ export default async function HomePage() {
               <div className="flex items-end justify-between">
                 <div className="space-y-1">
                   <h2 className="text-2xl sm:text-3xl font-bold text-slate-800">
-                    Mais pedidos 🛒
+                    Destaque da semana
                   </h2>
                   <p className="text-sm text-slate-500">
-                    Os favoritos dos nossos clientes
+                    Seleção especial para você
                   </p>
                 </div>
                 <Link
@@ -378,13 +341,12 @@ export default async function HomePage() {
                         style={{ backgroundColor: "#f9fafb" }}
                       >
                         {product.image_url ? (
-                          <img
+                          <Image
                             src={product.image_url}
                             alt={product.name}
                             width={400}
                             height={400}
                             className="w-full h-full object-cover transition group-hover:scale-105 duration-500"
-                            loading="lazy"
                           />
                         ) : (
                           <div className="flex h-full items-center justify-center">
