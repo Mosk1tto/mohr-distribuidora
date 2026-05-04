@@ -29,47 +29,41 @@ type FeaturedProduct = {
 function getCategoryIcon(slug?: string, name?: string) {
   const key = `${slug ?? ""} ${name ?? ""}`.toLowerCase();
 
-  if (key.includes("desinf") || key.includes("bacter")) {
-    return <Shield size={22} className="text-[#426b52]" />;
-  }
+  if (key.includes("desinf") || key.includes("bacter"))
+    return <Shield size={22} style={{ color: "var(--brand)" }} />;
 
-  if (key.includes("deterg") || key.includes("lava") || key.includes("sab")) {
-    return <Droplets size={22} className="text-[#426b52]" />;
-  }
+  if (key.includes("deterg") || key.includes("lava") || key.includes("sab"))
+    return <Droplets size={22} style={{ color: "var(--brand)" }} />;
 
   if (
     key.includes("limpeza pesada") ||
     key.includes("multiuso") ||
     key.includes("removedor")
-  ) {
-    return <SprayCan size={22} className="text-[#426b52]" />;
-  }
+  )
+    return <SprayCan size={22} style={{ color: "var(--brand)" }} />;
 
   if (
     key.includes("casa") ||
     key.includes("cozinha") ||
     key.includes("banheiro")
-  ) {
-    return <Home size={22} className="text-[#426b52]" />;
-  }
+  )
+    return <Home size={22} style={{ color: "var(--brand)" }} />;
 
   if (
     key.includes("vassoura") ||
     key.includes("rodo") ||
     key.includes("escova")
-  ) {
-    return <BrushCleaning size={22} className="text-[#426b52]" />;
-  }
+  )
+    return <BrushCleaning size={22} style={{ color: "var(--brand)" }} />;
 
   if (
     key.includes("mercado") ||
     key.includes("utilidade") ||
     key.includes("geral")
-  ) {
-    return <ShoppingBasket size={22} className="text-[#426b52]" />;
-  }
+  )
+    return <ShoppingBasket size={22} style={{ color: "var(--brand)" }} />;
 
-  return <Package size={22} className="text-[#426b52]" />;
+  return <Package size={22} style={{ color: "var(--brand)" }} />;
 }
 
 export default async function HomePage() {
@@ -92,10 +86,13 @@ export default async function HomePage() {
   const featuredProducts = (featuredData ?? []) as FeaturedProduct[];
 
   return (
-    <main className="min-h-screen" style={{ backgroundColor: "#fafaf8" }}>
+    <main
+      className="min-h-screen"
+      style={{ backgroundColor: "var(--surface)" }}
+    >
       {/* ── HERO ─────────────────────────────────────────── */}
       <section
-        className="overflow-hidden py-10 sm:py-16"
+        className="overflow-hidden pt-6 pb-10 sm:pt-10 sm:pb-16"
         style={{ backgroundColor: "var(--surface)" }}
       >
         <div className="mx-auto max-w-screen-xl flex flex-col lg:flex-row items-center gap-10 px-4 sm:px-8 lg:pl-16 lg:pr-0">
@@ -103,12 +100,15 @@ export default async function HomePage() {
           <div className="flex-1 space-y-6 text-center lg:text-left shrink-0">
             <FadeIn direction="up">
               <span
-                className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold text-emerald-700"
-                style={{ backgroundColor: "#d1fae5" }}
+                className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold"
+                style={{
+                  backgroundColor: "var(--brand-muted)",
+                  color: "var(--brand)",
+                }}
               >
                 <Heart
                   size={12}
-                  className="fill-emerald-500 text-emerald-500"
+                  style={{ fill: "var(--brand)", color: "var(--brand)" }}
                 />
                 Bem-vindo à Mohr Distribuidora
               </span>
@@ -124,7 +124,10 @@ export default async function HomePage() {
               >
                 Tudo em{" "}
                 <span className="relative inline-block">
-                  <span className="relative z-10" style={{ color: "var(--brand)" }}>
+                  <span
+                    className="relative z-10"
+                    style={{ color: "var(--accent)" }}
+                  >
                     higiene e limpeza,
                   </span>
                   <svg
@@ -135,7 +138,7 @@ export default async function HomePage() {
                   >
                     <path
                       d="M2 6 Q50 2 100 5 Q150 8 198 4"
-                      stroke="var(--brand)"
+                      stroke="var(--accent)"
                       strokeWidth="3"
                       strokeLinecap="round"
                       fill="none"
@@ -147,9 +150,11 @@ export default async function HomePage() {
             </FadeIn>
 
             <FadeIn direction="up" delay={0.2}>
-              <p className="text-slate-600 text-base leading-relaxed max-w-lg mx-auto lg:mx-0">
-                Navegue pelo catálogo, escolha o que precisar e finalize seu
-                pedido direto no WhatsApp.
+              <p
+                className="text-base leading-relaxed max-w-lg mx-auto lg:mx-0"
+                style={{ color: "var(--text-muted)" }}
+              >
+                Explore nossa linha completa de produtos e garanta o abastecimento da sua casa ou empresa com atendimento rápido pelo WhatsApp.
               </p>
             </FadeIn>
 
@@ -157,8 +162,11 @@ export default async function HomePage() {
               <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
                 <Link
                   href="/products"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl px-7 py-3.5 text-sm font-bold text-white shadow-md transition hover:opacity-90 active:scale-95"
-                  style={{ backgroundColor: "var(--brand)", transition: "var(--transition-ui)" }}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl px-7 py-3.5 text-sm font-bold text-white shadow-md active:scale-95"
+                  style={{
+                    backgroundColor: "var(--brand)",
+                    transition: "var(--transition-ui)",
+                  }}
                 >
                   Ver produtos
                   <ArrowRight size={16} />
@@ -174,7 +182,7 @@ export default async function HomePage() {
             className="w-full lg:w-[48%] shrink-0"
           >
             <Image
-              src="/prateleira.webp"
+              src="/prat.webp"
               alt="Prateleira com produtos de limpeza organizados"
               width={1600}
               height={1200}
@@ -186,14 +194,20 @@ export default async function HomePage() {
       </section>
 
       {/* ── COMO FUNCIONA ─────────────────────────────────── */}
-      <section className="px-4 py-16 bg-white">
+      <section
+        className="px-4 py-16"
+        style={{ backgroundColor: "var(--surface-card)" }}
+      >
         <Container className="space-y-10">
           <FadeIn direction="up">
             <div className="text-center space-y-2">
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-800">
+              <h2
+                className="text-2xl sm:text-3xl font-bold"
+                style={{ color: "var(--text-primary)" }}
+              >
                 Como fazer seu pedido?
               </h2>
-              <p className="text-slate-500">É simples assim 👇</p>
+              <p style={{ color: "var(--text-muted)" }}>É simples assim 👇</p>
             </div>
           </FadeIn>
 
@@ -225,7 +239,6 @@ export default async function HomePage() {
                 className="flex-1"
               >
                 <div className="flex flex-col gap-4 p-6">
-                  {/* Número + linha conectora */}
                   <div className="flex items-center gap-3">
                     <span
                       className="font-bold text-xs tracking-widest"
@@ -246,11 +259,12 @@ export default async function HomePage() {
                       />
                     )}
                   </div>
-                  {/* Ícone sem fundo colorido */}
                   <div style={{ color: "var(--brand)" }}>{item.icon}</div>
-                  {/* Texto */}
                   <div>
-                    <h3 className="font-semibold text-slate-800 mb-1 text-sm">
+                    <h3
+                      className="font-semibold mb-1 text-sm"
+                      style={{ color: "var(--text-primary)" }}
+                    >
                       {item.title}
                     </h3>
                     <p
@@ -268,14 +282,20 @@ export default async function HomePage() {
       </section>
 
       {/* ── CATEGORIAS ────────────────────────────────────── */}
-      <section className="px-4 py-16" style={{ backgroundColor: "#f0fdf6" }}>
+      <section
+        className="px-4 py-16"
+        style={{ backgroundColor: "var(--surface-alt)" }}
+      >
         <Container className="space-y-10">
           <FadeIn direction="up">
             <div className="space-y-2">
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-800">
+              <h2
+                className="text-2xl sm:text-3xl font-bold"
+                style={{ color: "var(--text-primary)" }}
+              >
                 O que você procura?
               </h2>
-              <p className="text-slate-500 text-sm">
+              <p className="text-sm" style={{ color: "var(--text-muted)" }}>
                 Clique em uma categoria para ver os produtos
               </p>
             </div>
@@ -287,12 +307,18 @@ export default async function HomePage() {
                 <Link
                   href={`/products?category=${cat.slug}`}
                   className="group flex flex-col items-start gap-3 rounded-xl border bg-white p-5 transition hover:shadow-md hover:-translate-y-0.5 duration-200"
-                  style={{ borderColor: "#d1fae5" }}
+                  style={{ borderColor: "var(--border)" }}
                 >
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#eef3ec]">
+                  <div
+                    className="flex h-11 w-11 items-center justify-center rounded-xl"
+                    style={{ backgroundColor: "var(--brand-light)" }}
+                  >
                     {getCategoryIcon(cat.slug, cat.name)}
                   </div>
-                  <span className="text-sm font-semibold text-slate-700 group-hover:text-emerald-700 transition">
+                  <span
+                    className="text-sm font-semibold transition"
+                    style={{ color: "var(--text-primary)" }}
+                  >
                     {cat.name}
                   </span>
                 </Link>
@@ -302,13 +328,13 @@ export default async function HomePage() {
               <Link
                 href="/products"
                 className="group flex flex-col items-start gap-3 rounded-xl border border-dashed bg-white p-5 transition hover:shadow-md hover:-translate-y-0.5 duration-200"
-                style={{ borderColor: "#6ee7b7" }}
+                style={{ borderColor: "var(--brand-muted)" }}
               >
-                <Package
-                  size={22}
-                  className="text-slate-400 group-hover:text-emerald-500 transition"
-                />
-                <span className="text-sm font-semibold text-slate-500 group-hover:text-emerald-600 transition">
+                <Package size={22} style={{ color: "var(--text-faint)" }} />
+                <span
+                  className="text-sm font-semibold"
+                  style={{ color: "var(--text-muted)" }}
+                >
                   Ver tudo →
                 </span>
               </Link>
@@ -319,21 +345,28 @@ export default async function HomePage() {
 
       {/* ── PRODUTOS EM DESTAQUE ──────────────────────────── */}
       {featuredProducts.length > 0 && (
-        <section className="bg-white px-4 py-16">
+        <section
+          className="px-4 py-16"
+          style={{ backgroundColor: "var(--surface-card)" }}
+        >
           <Container className="space-y-10">
             <FadeIn direction="up">
               <div className="flex items-end justify-between">
                 <div className="space-y-1">
-                  <h2 className="text-2xl sm:text-3xl font-bold text-slate-800">
+                  <h2
+                    className="text-2xl sm:text-3xl font-bold"
+                    style={{ color: "var(--text-primary)" }}
+                  >
                     Destaque da semana
                   </h2>
-                  <p className="text-sm text-slate-500">
+                  <p className="text-sm" style={{ color: "var(--text-muted)" }}>
                     Seleção especial para você
                   </p>
                 </div>
                 <Link
                   href="/products"
-                  className="hidden sm:inline-flex items-center gap-1 text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition"
+                  className="hidden sm:inline-flex items-center gap-1 text-sm font-semibold transition"
+                  style={{ color: "var(--brand)" }}
                 >
                   Ver todos <ArrowRight size={14} />
                 </Link>
@@ -351,11 +384,11 @@ export default async function HomePage() {
                     <Link
                       href={`/products/${product.slug}`}
                       className="group flex flex-col rounded-xl border overflow-hidden bg-white transition hover:shadow-lg hover:-translate-y-1 duration-300"
-                      style={{ borderColor: "#e5e7eb" }}
+                      style={{ borderColor: "var(--border-subtle)" }}
                     >
                       <div
                         className="relative aspect-square overflow-hidden"
-                        style={{ backgroundColor: "#f9fafb" }}
+                        style={{ backgroundColor: "var(--surface-alt)" }}
                       >
                         {product.image_url ? (
                           <Image
@@ -367,18 +400,30 @@ export default async function HomePage() {
                           />
                         ) : (
                           <div className="flex h-full items-center justify-center">
-                            <Package size={48} className="text-slate-200" />
+                            <Package
+                              size={48}
+                              style={{ color: "var(--text-faint)" }}
+                            />
                           </div>
                         )}
                       </div>
                       <div className="p-4 flex flex-col gap-1">
-                        <p className="text-xs text-slate-400 uppercase tracking-wide font-medium">
+                        <p
+                          className="text-xs uppercase tracking-wide font-medium"
+                          style={{ color: "var(--text-faint)" }}
+                        >
                           {categoryName ?? "Sem categoria"}
                         </p>
-                        <p className="text-sm font-semibold text-slate-800 leading-snug">
+                        <p
+                          className="text-sm font-semibold leading-snug"
+                          style={{ color: "var(--text-primary)" }}
+                        >
                           {product.name}
                         </p>
-                        <p className="text-base font-bold text-emerald-600 mt-1">
+                        <p
+                          className="text-base font-bold mt-1"
+                          style={{ color: "var(--brand)" }}
+                        >
                           {new Intl.NumberFormat("pt-BR", {
                             style: "currency",
                             currency: "BRL",
@@ -394,7 +439,8 @@ export default async function HomePage() {
             <div className="sm:hidden text-center">
               <Link
                 href="/products"
-                className="inline-flex items-center gap-1 text-sm font-semibold text-emerald-600"
+                className="inline-flex items-center gap-1 text-sm font-semibold"
+                style={{ color: "var(--brand)" }}
               >
                 Ver todos os produtos <ArrowRight size={14} />
               </Link>
@@ -405,8 +451,8 @@ export default async function HomePage() {
 
       {/* ── CTA FINAL ─────────────────────────────────────── */}
       <section
-        className="grain-overlay relative overflow-hidden px-4 py-20 text-white"
-        style={{ backgroundColor: "#064e3b" }}
+        className="grain-overlay relative overflow-hidden px-4 py-20"
+        style={{ backgroundColor: "var(--brand-dark)" }}
       >
         <Container className="relative z-10">
           <FadeIn direction="up">
@@ -417,8 +463,7 @@ export default async function HomePage() {
                 viewBox="0 0 48 48"
                 fill="none"
                 aria-hidden="true"
-                className="text-emerald-300"
-                style={{ animation: "draw-check 0.6s ease forwards" }}
+                style={{ color: "var(--accent)" }}
               >
                 <circle
                   cx="24"
@@ -443,17 +488,28 @@ export default async function HomePage() {
                   }}
                 />
               </svg>
-              <h2 className="text-2xl sm:text-3xl font-bold leading-tight">
+              <h2
+                className="text-2xl sm:text-3xl font-bold leading-tight"
+                style={{ color: "var(--text-inverse)" }}
+              >
                 Seu pedido está a um clique de distância
               </h2>
-              <p className="text-emerald-100 text-base leading-relaxed">
+              <p
+                className="text-base leading-relaxed"
+                style={{ color: "var(--brand-muted)" }}
+              >
                 Sem cadastro, sem complicação. Escolha, adicione ao carrinho e
                 finalize direto no WhatsApp.
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link
                   href="/products"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-8 py-3.5 text-sm font-bold text-emerald-700 transition hover:bg-emerald-50 shadow-lg active:scale-95"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl px-8 py-3.5 text-sm font-bold shadow-lg active:scale-95 transition"
+                  style={{
+                    backgroundColor: "var(--accent)",
+                    color: "var(--brand-dark)",
+                    transition: "var(--transition-ui)",
+                  }}
                 >
                   Ver catálogo
                   <ArrowRight size={16} />
@@ -462,7 +518,12 @@ export default async function HomePage() {
                   href="https://wa.me/5546999218016"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-400/40 px-8 py-3.5 text-sm font-semibold text-white transition hover:bg-emerald-800 active:scale-95"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border px-8 py-3.5 text-sm font-semibold transition active:scale-95"
+                  style={{
+                    borderColor: "var(--brand-muted)",
+                    color: "var(--text-inverse)",
+                    transition: "var(--transition-ui)",
+                  }}
                 >
                   <MessageCircle size={16} />
                   WhatsApp

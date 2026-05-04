@@ -1,16 +1,48 @@
 @import "tailwindcss";
 
 :root {
-  --brand:          #1a5c38;
-  --brand-hover:    #145230;
-  --brand-light:    #eaf4ee;
-  --brand-muted:    #d0e9d9;
-  --brand-dark:     #0d3522;
-  --surface:        #faf9f7;
+  /* ── Paleta base ─────────────────────────────────── */
+  --cerulean:       #086788;
+  --prussian-blue:  #0b132b;
+  --tropical-mint:  #00dcb0;
+  --bright-amber:   #f0c808;
+  --scarlet:        #dd1c1a;
+
+  /* ── Marca (cor principal = Cerulean) ────────────── */
+  --brand:          #086788;
+  --brand-hover:    #065a77;
+  --brand-dark:     #0b132b;
+  --brand-light:    #e0f4fa;
+  --brand-muted:    #b3d9e8;
+
+  /* ── Acento (Tropical Mint) ──────────────────────── */
+  --accent:         #00dcb0;
+  --accent-hover:   #00c49c;
+  --accent-light:   #e0fdf6;
+
+  /* ── Superfícies ─────────────────────────────────── */
+  --surface:        #f8f9fb;
   --surface-card:   #ffffff;
-  --border:         oklch(from #1a5c38 l c h / 0.14);
-  --text-primary:   #1a1f1c;
-  --text-muted:     #5a6b61;
+  --surface-alt:    #eef2f5;
+  --surface-dark:   #0b132b;
+
+  /* ── Bordas ──────────────────────────────────────── */
+  --border:         oklch(from #086788 l c h / 0.18);
+  --border-subtle:  oklch(from #0b132b l c h / 0.08);
+
+  /* ── Texto ───────────────────────────────────────── */
+  --text-primary:   #0b132b;
+  --text-muted:     #4a5568;
+  --text-faint:     #94a3b8;
+  --text-inverse:   #f8f9fb;
+
+  /* ── Feedback ────────────────────────────────────── */
+  --success:        #00dcb0;
+  --warning:        #f0c808;
+  --warning-text:   #7a6000;
+  --error:          #dd1c1a;
+
+  /* ── UI ──────────────────────────────────────────── */
   --radius-card:    1rem;
   --transition-ui:  180ms cubic-bezier(0.16, 1, 0.3, 1);
 }
